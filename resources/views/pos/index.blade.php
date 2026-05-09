@@ -148,7 +148,7 @@
 </div>
 
 <!-- Variant Selection Modal -->
-<div id="variant-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+<div id="variant-modal" class="fixed inset-0 bg-black/50 z-40 hidden pos-modal items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800" id="modal-product-name">Select Variant</h3>
@@ -159,7 +159,7 @@
 </div>
 
 <!-- Checkout Modal -->
-<div id="checkout-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+<div id="checkout-modal" class="fixed inset-0 bg-black/50 z-40 hidden pos-modal items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800">Checkout</h3>
@@ -205,7 +205,7 @@
 </div>
 
 <!-- Receipt Modal -->
-<div id="receipt-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+<div id="receipt-modal" class="fixed inset-0 bg-black/50 z-50 hidden pos-modal items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 text-center">
         <div class="w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-check text-white text-2xl"></i>
@@ -257,7 +257,7 @@
 </button>
 
 <!-- Quick Add Customer Modal -->
-<div id="quick-add-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+<div id="quick-add-modal" class="fixed inset-0 bg-black/50 z-50 hidden pos-modal items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-user-plus text-gray-700 mr-2"></i>New Customer</h3>
