@@ -72,18 +72,6 @@ php artisan serve
 - User activity logging
 - Secure authentication
 
-## Default Login
-
-After installation, you can use any of these accounts:
-
-| Name | Email | Password | Role |
-|------|-------|----------|------|
-| Admin | admin@styleblend.com | password | Admin |
-| Shean Louise Margallo | sheanlouisemargallo@gmail.com | password | Admin |
-| Jayannet | jayannet4@gmail.com | password | Admin |
-| Cashier | cashier@styleblend.com | password | Cashier |
-
-**⚠️ Change all default passwords immediately after first login!**
 
 ## Keyboard Shortcuts
 
