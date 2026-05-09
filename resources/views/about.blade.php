@@ -7,12 +7,11 @@
 
     {{-- Hero --}}
     <div class="bg-navy rounded-2xl px-8 pt-10 pb-8 flex flex-col items-center text-center">
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 shadow-lg"
-             style="background:linear-gradient(135deg,#1DB87A,#0F8A58);">
-            <span style="font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:#fff;letter-spacing:-1px;">TB</span>
+        <div class="w-16 h-16 rounded-2xl bg-gradient-brand flex items-center justify-center mb-5 shadow-lg">
+            <span class="font-display font-black text-[22px] text-white tracking-[-1px]">TB</span>
         </div>
-        <h1 style="font-family:'Nunito',sans-serif;font-weight:900;font-size:2.2rem;letter-spacing:-0.5px;line-height:1.1;">
-            <span class="text-white">Track</span><span style="color:#1DB87A;">Buddy</span>
+        <h1 class="font-display font-black text-[2.2rem] tracking-tight leading-[1.1]">
+            <span class="text-white">Track</span><span class="text-brand">Buddy</span>
         </h1>
         <p class="text-white/40 text-xs mt-2 tracking-widest uppercase">Point of Sale System</p>
         <span class="mt-4 inline-block bg-white/10 text-white/60 text-xs px-4 py-1.5 rounded-full border border-white/10">
@@ -24,7 +23,7 @@
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">About</h2>
         <p class="text-gray-700 leading-relaxed">
-            <strong class="text-navy" style="font-family:'Nunito',sans-serif;font-weight:800;">TrackBuddy</strong>
+            <strong class="text-navy font-display font-extrabold">TrackBuddy</strong>
             is a modern, lightweight Point of Sale system built for clothing retail businesses.
             It covers the full retail workflow — product &amp; variant management, real-time inventory tracking,
             sales transactions, purchase orders, expenses, customer loyalty with raffle, and detailed reports —
@@ -37,24 +36,22 @@
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">The Team</h2>
         <div class="space-y-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                     style="background:linear-gradient(135deg,#1DB87A,#0F8A58);">
-                    <span class="text-white font-bold text-lg" style="font-family:'Nunito',sans-serif;">SL</span>
+                <div class="w-12 h-12 rounded-xl bg-gradient-brand flex items-center justify-center shrink-0">
+                    <span class="text-white font-display font-bold text-lg">SL</span>
                 </div>
                 <div>
-                    <p class="font-bold text-navy text-base" style="font-family:'Nunito',sans-serif;">Shean Louise Margallo</p>
+                    <p class="font-display font-bold text-navy text-base">Shean Louise Margallo</p>
                     <p class="text-gray-500 text-sm">Lead Developer &amp; Designer</p>
                     <p class="text-gray-400 text-xs mt-0.5">sheanlouisemargallo@gmail.com</p>
                 </div>
             </div>
             <div class="border-t border-gray-100"></div>
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                     style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);">
-                    <span class="text-white font-bold text-lg" style="font-family:'Nunito',sans-serif;">JA</span>
+                <div class="w-12 h-12 rounded-xl bg-gradient-blue flex items-center justify-center shrink-0">
+                    <span class="text-white font-display font-bold text-lg">JA</span>
                 </div>
                 <div>
-                    <p class="font-bold text-navy text-base" style="font-family:'Nunito',sans-serif;">Jay-Anne R. Tan</p>
+                    <p class="font-display font-bold text-navy text-base">Jay-Anne R. Tan</p>
                     <p class="text-gray-500 text-sm">Product Owner &amp; Business Analyst</p>
                     <p class="text-gray-400 text-xs mt-0.5">Defined system requirements &amp; feature direction</p>
                 </div>
@@ -68,7 +65,7 @@
 
         <div class="flex gap-3">
             <div class="mt-0.5 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-tag text-xs" style="color:#1DB87A;"></i>
+                <i class="fas fa-tag text-xs text-brand"></i>
             </div>
             <div>
                 <p class="text-sm font-semibold text-gray-700">Name &amp; Branding</p>
@@ -83,7 +80,7 @@
 
         <div class="flex gap-3">
             <div class="mt-0.5 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-copyright text-xs" style="color:#1DB87A;"></i>
+                <i class="fas fa-copyright text-xs text-brand"></i>
             </div>
             <div>
                 <p class="text-sm font-semibold text-gray-700">Copyright</p>
@@ -99,7 +96,7 @@
 
         <div class="flex gap-3">
             <div class="mt-0.5 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-shield-alt text-xs" style="color:#1DB87A;"></i>
+                <i class="fas fa-shield-alt text-xs text-brand"></i>
             </div>
             <div>
                 <p class="text-sm font-semibold text-gray-700">License</p>
@@ -116,11 +113,8 @@
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Built With</h2>
         <div class="flex flex-wrap gap-2">
-            @foreach([
-                'Laravel 12', 'PHP 8.3', 'Alpine.js', 'Tailwind CSS',
-                'MySQL', 'Vite', 'SweetAlert2', 'jQuery'
-            ] as $tech)
-            <span class="text-xs font-medium bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">{{ $tech }}</span>
+            @foreach(['Laravel 12', 'PHP 8.3', 'Alpine.js', 'Tailwind CSS', 'MySQL', 'Vite', 'SweetAlert2', 'jQuery'] as $tech)
+                <span class="text-xs font-medium bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">{{ $tech }}</span>
             @endforeach
         </div>
     </div>

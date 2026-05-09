@@ -33,4 +33,12 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .bg-gradient-brand {
+    background: linear-gradient(135deg, var(--color-brand), var(--color-brand-dark));
+  }
+
+  .bg-gradient-blue {
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  }
 }
