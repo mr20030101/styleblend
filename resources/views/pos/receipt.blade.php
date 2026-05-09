@@ -59,6 +59,7 @@
     <div class="row"><span>Date:</span><span>{{ $transaction->created_at->format('m/d/Y H:i') }}</span></div>
     <div class="row"><span>TXN #:</span><span class="bold">{{ $transaction->transaction_number }}</span></div>
     <div class="row"><span>Cashier:</span><span>{{ $transaction->user->name }}</span></div>
+    <div class="row"><span>Customer:</span><span>{{ $transaction->customer ? $transaction->customer->name : 'Walk-in' }}</span></div>
 
     <div class="divider"></div>
     <div class="row bold">

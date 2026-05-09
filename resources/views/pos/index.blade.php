@@ -303,12 +303,41 @@ const TAX_RATE         = {{ $taxRate }};
 const TAX_INCLUSIVE    = {{ $taxInclusive ? 'true' : 'false' }};
 const DISCOUNT_ENABLED = {{ $discountEnabled ? 'true' : 'false' }};
 const MAX_DISCOUNT     = {{ $maxDiscount }};
-const RAFFLE_ENABLED   = {{ \App\Models\Setting::get('raffle_enabled','1') == '1' ? 'true' : 'false' }};
+const RAFFLE_ENABLED   = {{ \App\Models\Setting::get('raffle_enabled','1') == '1' ? 'true' : 'false' }} && {{ $activeRaffle ? 'true' : 'false' }};
 const RAFFLE_PER_ENTRY = {{ (float)\App\Models\Setting::get('raffle_per_entry', 300) }};
 
 let cart = [];
 let searchTimeout, customerSearchTimeout;
 let selectedCustomer = null;
+
+const CART_STORAGE_KEY = 'styleblend_pos_cart';
+
+function saveCart() {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify({
+        cart,
+        customer: selectedCustomer,
+        discount: parseFloat($('#discount').val()) || 0,
+    }));
+}
+
+function loadCart() {
+    try {
+        const data = JSON.parse(localStorage.getItem(CART_STORAGE_KEY));
+        if (!data) return;
+        cart = data.cart || [];
+        if (data.discount) $('#discount').val(data.discount);
+        if (data.customer) {
+            selectedCustomer = data.customer;
+            $('#sel-name').text(selectedCustomer.name);
+            $('#sel-phone').text(selectedCustomer.phone || '');
+            $('#customer-selected').removeClass('hidden');
+            $('#selected-customer-id').val(selectedCustomer.id);
+        }
+        if (cart.length) renderCart();
+    } catch (e) {
+        localStorage.removeItem(CART_STORAGE_KEY);
+    }
+}
 
 // ── Product search ──────────────────────────────────────────
 $('#search-input').on('input', function() {
@@ -421,6 +450,7 @@ function selectCustomer(id, name, phone) {
     $('#customer-selected').removeClass('hidden');
     $('#selected-customer-id').val(id);
     updateRafflePreview();
+    saveCart();
 }
 
 function clearCustomer() {
@@ -429,6 +459,7 @@ function clearCustomer() {
     $('#customer-selected').addClass('hidden');
     $('#customer-search').val('');
     $('#raffle-preview').addClass('hidden');
+    saveCart();
 }
 
 // ── Quick Add Customer ──────────────────────────────────────
@@ -559,6 +590,7 @@ function renderCart() {
     if (fab) { fab.textContent = totalQty; fab.classList.toggle('hidden', totalQty === 0); }
     $('#checkout-btn').prop('disabled', false);
     updateTotals();
+    saveCart();
 }
 
 function updateQty(idx, delta) {
@@ -593,6 +625,7 @@ $('#discount').on('input', function() {
         this.value = MAX_DISCOUNT; showToast('Maximum discount is ₱' + MAX_DISCOUNT, 'warning');
     }
     updateTotals();
+    saveCart();
 });
 
 // ── Checkout ────────────────────────────────────────────────
@@ -661,6 +694,7 @@ function processCheckout() {
             customer_phone: selectedCustomer?.phone || null,
         }),
         success: function(res) {
+            localStorage.removeItem(CART_STORAGE_KEY);
             closeCheckout();
             $('#receipt-txn').text('Transaction: ' + res.transaction_number);
             $('#receipt-total').text('₱' + total.toFixed(2));
@@ -704,6 +738,7 @@ function openReceipt() {
 function newTransaction() {
     cart = [];
     selectedCustomer = null;
+    localStorage.removeItem(CART_STORAGE_KEY);
     $('#discount').val(0); $('#tax').val(0);
     $('#selected-customer-id').val('');
     $('#customer-selected').addClass('hidden');
@@ -754,6 +789,7 @@ document.addEventListener('fullscreenchange', function() {
     }
 });
 
+loadCart();
 searchProducts();
 </script>
 @endpush

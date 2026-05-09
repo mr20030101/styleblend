@@ -27,9 +27,10 @@ class PosController extends Controller
         $discountEnabled = \App\Models\Setting::get('discount_enabled', '1') == '1';
         $maxDiscount = (float) \App\Models\Setting::get('max_discount', '0');
         $currencySymbol = \App\Models\Setting::get('currency_symbol', '₱');
+        $activeRaffle = \App\Models\RafflePeriod::getActive() !== null;
         return view('pos.index', compact(
             'categories', 'taxEnabled', 'taxRate', 'taxLabel',
-            'taxInclusive', 'discountEnabled', 'maxDiscount', 'currencySymbol'
+            'taxInclusive', 'discountEnabled', 'maxDiscount', 'currencySymbol', 'activeRaffle'
         ));
     }
 
@@ -262,7 +263,8 @@ class PosController extends Controller
             $customerPhone = null;
 
             if ($raffleEnabled && $perEntry > 0) {
-                $entriesEarned = RaffleEntry::calcEntries($total, $perEntry);
+                $activePeriod  = RafflePeriod::getActive();
+                $entriesEarned = $activePeriod ? RaffleEntry::calcEntries($total, $perEntry) : 0;
 
                 if ($entriesEarned > 0) {
                     if (!empty($data['customer_id'])) {
@@ -275,10 +277,9 @@ class PosController extends Controller
                     }
 
                     if ($customerName) {
-                        $activePeriod = RafflePeriod::getActive();
-                        $tickets = RaffleEntry::generateTickets($entriesEarned, $activePeriod?->id);
+                        $tickets = RaffleEntry::generateTickets($entriesEarned, $activePeriod->id);
                         RaffleEntry::create([
-                            'raffle_period_id' => $activePeriod?->id,
+                            'raffle_period_id' => $activePeriod->id,
                             'customer_id'      => $data['customer_id'] ?? null,
                             'customer_name'    => $customerName,
                             'customer_phone'   => $customerPhone,
