@@ -4,7 +4,10 @@
 <div class="space-y-4">
     <div class="flex flex-wrap justify-between items-center gap-3">
         <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Products</h2>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
+            <a href="{{ route('products.barcodes.batch') }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                <i class="fas fa-barcode mr-1"></i> Batch Barcodes
+            </a>
             <a href="{{ route('products.import') }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
                 <i class="fas fa-file-import mr-1"></i> Import CSV
             </a>

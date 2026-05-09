@@ -84,7 +84,7 @@
             <div class="flex items-center gap-3">
                 @if($storeLogo)
                     <img src="{{ asset('storage/' . $storeLogo) }}" alt="{{ $storeName }}"
-                        class="h-9 w-9 object-contain rounded-xl shrink-0" style="filter: brightness(0) invert(1);">
+                        class="h-9 w-9 object-contain rounded-xl shrink-0">
                 @else
                     <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,#1DB87A,#0F8A58);">
                         <span class="font-display font-black text-white text-sm leading-none">{{ strtoupper(substr($storeName, 0, 2)) }}</span>

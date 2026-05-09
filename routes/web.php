@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/products/import/preview', [\App\Http\Controllers\ProductImportController::class, 'preview'])->name('products.import.preview');
         Route::post('/products/import/confirm', [\App\Http\Controllers\ProductImportController::class, 'import'])->name('products.import.confirm');
         Route::get('/products/{product}/barcodes', [\App\Http\Controllers\ProductController::class, 'barcodes'])->name('products.barcodes');
+        Route::get('/products/barcodes/batch', [\App\Http\Controllers\ProductController::class, 'barcodesBatch'])->name('products.barcodes.batch');
         Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
         Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');

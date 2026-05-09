@@ -91,6 +91,33 @@ class ProductController extends Controller
         return view('products.barcodes', compact('product', 'variantsData'));
     }
 
+    public function barcodesBatch()
+    {
+        $products = Product::with(['variants', 'category'])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id'       => $p->id,
+                    'name'     => $p->name,
+                    'category' => $p->category->name,
+                    'variants' => $p->variants->map(function ($v) use ($p) {
+                        $barcode = $v->sku ?: ($p->sku . '-' . $v->size);
+                        return [
+                            'id'      => $v->id,
+                            'size'    => $v->size,
+                            'color'   => $v->color,
+                            'price'   => $v->price,
+                            'barcode' => $barcode,
+                        ];
+                    })->values(),
+                ];
+            });
+
+        return view('products.barcodes_batch', compact('products'));
+    }
+
     public function edit(Product $product)
     {
         $product->load('variants');

@@ -18,9 +18,9 @@
             {{-- TB logo mark --}}
             <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#1DB87A 0%,#0F8A58 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:'Nunito',sans-serif;font-weight:900;font-size:28px;color:white;letter-spacing:-1px;">TB</div>
         @endif
-        {{-- Wordmark --}}
-        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.3px;line-height:1;">
-            <span style="color:#1A2B3C;">Track</span><span style="color:#1DB87A;">Buddy</span>
+        {{-- Store name --}}
+        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.3px;line-height:1;color:#1A2B3C;">
+            {{ $name }}
         </div>
         <p class="text-gray-500 text-sm mt-2">Sign in to your account</p>
     </div>
