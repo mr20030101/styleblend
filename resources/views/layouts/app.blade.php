@@ -234,7 +234,7 @@
                 <span>Point of Sale System</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="hidden sm:block">&copy; {{ date('Y') }} Shean Louise Margallo. All rights reserved.</span>
+                <span class="hidden sm:block">&copy; {{ date('Y') }} TrackBuddy. All rights reserved.</span>
                 <a href="{{ route('about') }}"
                    class="hover:text-navy transition-colors font-medium {{ request()->routeIs('about') ? 'text-navy' : '' }}">
                     About
