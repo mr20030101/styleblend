@@ -4,14 +4,14 @@
 <div class="space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800">Customers</h2>
-        <button onclick="openModal()" class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> Add Customer
         </button>
     </div>
 
     <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or email..."
-            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <button type="submit" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm transition">Search</button>
         <a href="{{ route('customers.index') }}" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm transition">Reset</a>
     </form>
@@ -70,33 +70,33 @@
             <div class="grid grid-cols-2 gap-3">
                 <div class="col-span-2">
                     <label class="block text-xs font-medium text-gray-700 mb-1">Name *</label>
-                    <input type="text" id="c-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <input type="text" id="c-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Phone</label>
-                    <input type="text" id="c-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <input type="text" id="c-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="c-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <input type="email" id="c-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-medium text-gray-700 mb-1">Address</label>
-                    <input type="text" id="c-address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <input type="text" id="c-address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Birthday</label>
-                    <input type="date" id="c-birthday" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <input type="date" id="c-birthday" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div id="status-wrap" class="hidden">
                     <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                    <select id="c-active" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <select id="c-active" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                         <option value="1">Active</option><option value="0">Inactive</option>
                     </select>
                 </div>
             </div>
             <div class="flex gap-3 pt-2">
-                <button onclick="saveCustomer()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                <button onclick="saveCustomer()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
                 <button onclick="$('#cust-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>

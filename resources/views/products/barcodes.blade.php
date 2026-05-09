@@ -54,7 +54,7 @@
         <p class="text-xs text-gray-400">{{ $product->category->name }} &nbsp;·&nbsp; SKU: {{ $product->sku }}</p>
     </div>
     <button onclick="window.print()"
-        class="flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition">
+        class="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition">
         <i class="fas fa-print"></i> Print Labels
     </button>
 </div>
@@ -72,7 +72,7 @@
                 <div class="flex items-center gap-2">
                     <button onclick="changeCopies(-1)" class="w-8 h-8 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold transition flex items-center justify-center">−</button>
                     <input type="number" id="copies" value="1" min="1" max="100"
-                        class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-center font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-center font-semibold focus:outline-none focus:ring-2 focus:ring-brand"
                         onchange="renderLabels()">
                     <button onclick="changeCopies(1)" class="w-8 h-8 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold transition flex items-center justify-center">+</button>
                 </div>

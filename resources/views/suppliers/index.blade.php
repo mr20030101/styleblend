@@ -4,7 +4,7 @@
 <div class="space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800">Suppliers</h2>
-        <button onclick="openModal()" class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> Add Supplier
         </button>
     </div>
@@ -51,19 +51,19 @@
         <input type="hidden" id="sup-id">
         <div class="space-y-3">
             <div><label class="block text-xs font-medium text-gray-700 mb-1">Name *</label>
-                <input type="text" id="s-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                <input type="text" id="s-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div><label class="block text-xs font-medium text-gray-700 mb-1">Contact Person</label>
-                    <input type="text" id="s-contact" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                    <input type="text" id="s-contact" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
                 <div><label class="block text-xs font-medium text-gray-700 mb-1">Phone</label>
-                    <input type="text" id="s-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                    <input type="text" id="s-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             </div>
             <div><label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" id="s-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                <input type="email" id="s-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             <div><label class="block text-xs font-medium text-gray-700 mb-1">Address</label>
-                <input type="text" id="s-address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                <input type="text" id="s-address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             <div class="flex gap-3 pt-2">
-                <button onclick="saveSupplier()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                <button onclick="saveSupplier()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
                 <button onclick="$('#sup-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>

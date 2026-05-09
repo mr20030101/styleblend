@@ -5,56 +5,56 @@
     <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-            <div class="bg-gray-100 text-gray-900 rounded-full p-3 text-2xl"><i class="fas fa-tshirt"></i></div>
-            <div>
-                <p class="text-sm text-gray-500">Total Products</p>
-                <p class="text-2xl font-bold text-gray-800">{{ $totalProducts }}</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+        <div class="bg-white rounded-xl shadow p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div class="bg-brand-light text-brand-dark rounded-full p-2.5 sm:p-3 text-lg sm:text-2xl shrink-0"><i class="fas fa-tshirt"></i></div>
+            <div class="min-w-0">
+                <p class="text-xs sm:text-sm text-gray-500 truncate">Total Products</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ $totalProducts }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-            <div class="bg-gray-100 text-gray-700 rounded-full p-3 text-2xl"><i class="fas fa-boxes"></i></div>
-            <div>
-                <p class="text-sm text-gray-500">Total Stock</p>
-                <p class="text-2xl font-bold text-gray-800">{{ number_format($totalStock) }}</p>
+        <div class="bg-white rounded-xl shadow p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div class="bg-brand-light text-brand-dark rounded-full p-2.5 sm:p-3 text-lg sm:text-2xl shrink-0"><i class="fas fa-boxes"></i></div>
+            <div class="min-w-0">
+                <p class="text-xs sm:text-sm text-gray-500 truncate">Total Stock</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ number_format($totalStock) }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-            <div class="bg-gray-100 text-gray-700 rounded-full p-3 text-2xl"><i class="fas fa-receipt"></i></div>
-            <div>
-                <p class="text-sm text-gray-500">Sales Today</p>
-                <p class="text-2xl font-bold text-gray-800">{{ $salesToday }}</p>
+        <div class="bg-white rounded-xl shadow p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div class="bg-brand-light text-brand-dark rounded-full p-2.5 sm:p-3 text-lg sm:text-2xl shrink-0"><i class="fas fa-receipt"></i></div>
+            <div class="min-w-0">
+                <p class="text-xs sm:text-sm text-gray-500 truncate">Sales Today</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ $salesToday }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-            <div class="bg-gray-100 text-gray-600 rounded-full p-3 text-2xl"><i class="fas fa-peso-sign"></i></div>
-            <div>
-                <p class="text-sm text-gray-500">Revenue Today</p>
-                <p class="text-2xl font-bold text-gray-800">₱{{ number_format($revenueToday, 2) }}</p>
+        <div class="bg-white rounded-xl shadow p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div class="bg-brand-light text-brand-dark rounded-full p-2.5 sm:p-3 text-lg sm:text-2xl shrink-0"><i class="fas fa-peso-sign"></i></div>
+            <div class="min-w-0">
+                <p class="text-xs sm:text-sm text-gray-500 truncate">Revenue Today</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800">₱{{ number_format($revenueToday, 2) }}</p>
                 @if($expensesToday > 0)
-                <p class="text-xs text-gray-400 mt-0.5">Expenses: -₱{{ number_format($expensesToday, 2) }}</p>
+                <p class="text-xs text-gray-400 mt-0.5 truncate">-₱{{ number_format($expensesToday, 2) }}</p>
                 @endif
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4 {{ $netProfitToday >= 0 ? 'border-l-4 border-gray-800' : 'border-l-4 border-red-400' }}">
-            <div class="bg-gray-100 text-gray-600 rounded-full p-3 text-2xl"><i class="fas fa-chart-line"></i></div>
-            <div>
-                <p class="text-sm text-gray-500">Net Profit Today</p>
-                <p class="text-2xl font-bold {{ $netProfitToday >= 0 ? 'text-gray-800' : 'text-red-600' }}">
+        <div class="bg-white rounded-xl shadow p-3 sm:p-5 flex items-center gap-3 sm:gap-4 col-span-2 sm:col-span-1 {{ $netProfitToday >= 0 ? 'border-l-4 border-brand' : 'border-l-4 border-red-400' }}">
+            <div class="bg-brand-light text-brand-dark rounded-full p-2.5 sm:p-3 text-lg sm:text-2xl shrink-0"><i class="fas fa-chart-line"></i></div>
+            <div class="min-w-0">
+                <p class="text-xs sm:text-sm text-gray-500 truncate">Net Profit Today</p>
+                <p class="text-xl sm:text-2xl font-bold {{ $netProfitToday >= 0 ? 'text-gray-800' : 'text-red-600' }}">
                     ₱{{ number_format($netProfitToday, 2) }}
                 </p>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
 
         <!-- Low Stock Alerts -->
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 bg-gray-900 rounded flex items-center justify-center flex-shrink-0">
+                    <div class="w-7 h-7 bg-brand rounded flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-exclamation text-white" style="font-size:11px;"></i>
                     </div>
                     <span class="font-semibold text-gray-800">Low Stock</span>
@@ -88,7 +88,7 @@
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 bg-gray-900 rounded flex items-center justify-center flex-shrink-0">
+                    <div class="w-7 h-7 bg-brand rounded flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-fire text-white" style="font-size:11px;"></i>
                     </div>
                     <span class="font-semibold text-gray-800">Best Selling</span>
@@ -123,7 +123,7 @@
         <div class="bg-white rounded-xl shadow overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 bg-gray-900 rounded flex items-center justify-center flex-shrink-0">
+                    <div class="w-7 h-7 bg-brand rounded flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-receipt text-white" style="font-size:11px;"></i>
                     </div>
                     <span class="font-semibold text-gray-800">Recent Transactions</span>

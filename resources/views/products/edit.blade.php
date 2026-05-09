@@ -21,11 +21,11 @@
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
                     <input type="text" name="name" value="{{ old('name', $product->name) }}" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                    <select name="category_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <select name="category_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
@@ -34,12 +34,12 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">SKU *</label>
                     <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Barcode</label>
                     <input type="text" name="barcode" value="{{ old('barcode', $product->barcode) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
@@ -47,11 +47,11 @@
                         <img src="{{ $product->image_url }}" class="w-16 h-16 rounded-lg object-cover mb-2">
                     @endif
                     <input type="file" name="image" accept="image/*"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select name="is_active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <select name="is_active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                         <option value="1" {{ $product->is_active ? 'selected' : '' }}>Active</option>
                         <option value="0" {{ !$product->is_active ? 'selected' : '' }}>Inactive</option>
                     </select>
@@ -59,13 +59,13 @@
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                     <textarea name="description" rows="3"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">{{ old('description', $product->description) }}</textarea>
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">{{ old('description', $product->description) }}</textarea>
                 </div>
             </div>
         </div>
 
         <div class="flex gap-3">
-            <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition">Update Product</button>
+            <button type="submit" class="bg-brand hover:bg-brand-dark text-white px-6 py-2.5 rounded-lg font-medium transition">Update Product</button>
             <a href="{{ route('products.barcodes', $product) }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition">
                 <i class="fas fa-barcode mr-1"></i> Print Barcodes
             </a>
@@ -77,7 +77,7 @@
     <div class="bg-white rounded-xl shadow p-6 mt-6">
         <div class="flex justify-between items-center border-b pb-2 mb-4">
             <h3 class="font-semibold text-gray-700">Variants</h3>
-            <button onclick="showAddVariant()" class="bg-gray-900 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg text-sm transition">
+            <button onclick="showAddVariant()" class="bg-brand hover:bg-brand-dark text-white px-3 py-1.5 rounded-lg text-sm transition">
                 <i class="fas fa-plus mr-1"></i> Add Variant
             </button>
         </div>
@@ -113,33 +113,33 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                    <select id="v-size" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <select id="v-size" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                         <option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
                     <input type="text" id="v-color" placeholder="e.g. Red"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
                     <input type="number" id="v-price" min="0" step="0.01" placeholder="0.00"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
                     <input type="number" id="v-cost" min="0" step="0.01" placeholder="0.00"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
                     <input type="number" id="v-stock" min="0" placeholder="0"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
             </div>
             <div class="flex gap-3 pt-2">
-                <button onclick="saveVariant()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                <button onclick="saveVariant()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
                 <button onclick="$('#variant-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>

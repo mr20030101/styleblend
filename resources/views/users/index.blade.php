@@ -4,7 +4,7 @@
 <div class="space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800">Users</h2>
-        <button onclick="openModal()" class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> Add User
         </button>
     </div>
@@ -61,19 +61,19 @@
             <input type="hidden" id="user-id">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                <input type="text" id="u-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="text" id="u-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                <input type="email" id="u-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="email" id="u-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Password <span id="pw-hint" class="text-gray-400 text-xs">(leave blank to keep)</span></label>
-                <input type="password" id="u-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="password" id="u-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Role *</label>
-                <select id="u-role" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <select id="u-role" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                     @foreach($roles as $role)
                     <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
                     @endforeach
@@ -81,13 +81,13 @@
             </div>
             <div id="status-field" class="hidden">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select id="u-active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <select id="u-active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                     <option value="1">Active</option>
                     <option value="0">Inactive</option>
                 </select>
             </div>
             <div class="flex gap-3 pt-2">
-                <button onclick="saveUser()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                <button onclick="saveUser()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
                 <button onclick="closeModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>

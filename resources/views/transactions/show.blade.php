@@ -65,7 +65,7 @@
 
     <div class="flex gap-3">
         <a href="{{ route('pos.receipt', $transaction->id) }}" target="_blank"
-            class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition">
+            class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm transition">
             <i class="fas fa-print mr-1"></i> Print Receipt
         </a>
         @if($transaction->status === 'completed')
@@ -84,7 +84,7 @@
         <p class="text-xs text-gray-500 mb-3" id="void-txn-num"></p>
         <input type="hidden" id="void-txn-id">
         <textarea id="void-reason" rows="2" placeholder="Reason for voiding..."
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
         <div class="flex gap-3">
             <button onclick="submitVoid()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-semibold transition">Void</button>
             <button onclick="$('#void-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>

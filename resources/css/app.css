@@ -5,3 +5,32 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+
+@theme {
+  --color-brand:       #1DB87A;
+  --color-brand-dark:  #0F8A58;
+  --color-brand-light: #E3F9EE;
+  --color-navy:        #1A2B3C;
+  --color-navy-light:  #253A4D;
+  --color-sand:        #F5F2EC;
+  --color-alert:       #FF6B35;
+
+  --font-sans:    'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

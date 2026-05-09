@@ -4,7 +4,7 @@
 <div class="space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800">Brands</h2>
-        <button onclick="openModal()" class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition">
+        <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg transition">
             <i class="fas fa-plus mr-2"></i>Add Brand
         </button>
     </div>
@@ -99,19 +99,19 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Brand Name *</label>
                 <input type="text" id="brand-name" name="name" required 
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea id="brand-description" name="description" rows="3"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
             </div>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Logo</label>
                 <input type="file" id="brand-logo" name="logo" accept="image/*"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                 <div id="current-logo" class="mt-2 hidden">
                     <img id="logo-preview" src="" alt="Current logo" class="w-16 h-16 rounded-lg object-cover">
                 </div>
@@ -123,7 +123,7 @@
             </div>
             
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg transition">
+                <button type="submit" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg transition">
                     Save Brand
                 </button>
                 <button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition">

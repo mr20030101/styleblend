@@ -8,7 +8,7 @@
     <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap items-end">
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Period</label>
-            <select name="period" id="period-select" onchange="toggleDateFields()" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <select name="period" id="period-select" onchange="toggleDateFields()" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 <option value="daily" {{ $period == 'daily' ? 'selected' : '' }}>Daily</option>
                 <option value="weekly" {{ $period == 'weekly' ? 'selected' : '' }}>Weekly</option>
                 <option value="monthly" {{ $period == 'monthly' ? 'selected' : '' }}>Monthly</option>
@@ -17,19 +17,19 @@
         </div>
         <div id="date-field" class="{{ $period == 'daily' ? '' : 'hidden' }}">
             <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
-            <input type="date" name="date" value="{{ $startDate }}" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <input type="date" name="date" value="{{ $startDate }}" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         </div>
         <div id="range-fields" class="{{ in_array($period, ['custom']) ? '' : 'hidden' }} flex gap-2">
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
-                <input type="date" name="start_date" value="{{ $startDate }}" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="date" name="start_date" value="{{ $startDate }}" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
-                <input type="date" name="end_date" value="{{ $endDate }}" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="date" name="end_date" value="{{ $endDate }}" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
         </div>
-        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition">Generate</button>
+        <button type="submit" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm transition">Generate</button>
         <a href="{{ route('reports.sales.csv', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
             class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm transition">
             <i class="fas fa-file-csv mr-1"></i> CSV

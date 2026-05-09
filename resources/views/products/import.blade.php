@@ -25,7 +25,7 @@
         </ol>
 
         <a href="{{ route('products.import.template') }}"
-            class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+            class="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-download"></i> Download CSV Template
         </a>
 
@@ -57,7 +57,7 @@
                     onchange="document.getElementById('file-name').textContent = this.files[0]?.name; document.getElementById('file-name').classList.remove('hidden');">
                 @error('csv_file')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
-            <button type="submit" class="w-full bg-gray-900 hover:bg-gray-700 text-white py-2.5 rounded-lg font-medium transition">
+            <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white py-2.5 rounded-lg font-medium transition">
                 <i class="fas fa-eye mr-2"></i> Preview Import
             </button>
         </form>

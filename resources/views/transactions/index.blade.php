@@ -6,10 +6,10 @@
 
     <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search transaction #..."
-            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <input type="date" name="date" value="{{ request('date') }}"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-        <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+        <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             <option value="">All Status</option>
             <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
             <option value="voided" {{ request('status') == 'voided' ? 'selected' : '' }}>Voided</option>
@@ -89,7 +89,7 @@
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Reason <span class="text-red-500">*</span></label>
             <textarea id="void-reason" rows="2" placeholder="e.g. Customer returned items, wrong order..."
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
         </div>
         <div class="flex gap-3">
             <button onclick="submitVoid()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-semibold transition">

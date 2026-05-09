@@ -111,7 +111,7 @@
     @if($validRows > 0)
     <form method="POST" action="{{ route('products.import.confirm') }}" class="flex gap-3">
         @csrf
-        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition">
+        <button type="submit" class="bg-brand hover:bg-brand-dark text-white px-6 py-2.5 rounded-lg font-medium transition">
             <i class="fas fa-file-import mr-2"></i> Confirm Import ({{ $validRows }} rows)
         </button>
         <a href="{{ route('products.import') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition">

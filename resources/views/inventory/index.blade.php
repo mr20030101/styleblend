@@ -14,8 +14,8 @@
     <!-- Filters -->
     <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..."
-            class="flex-1 min-w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
-        <select name="category_id" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            class="flex-1 min-w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+        <select name="category_id" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             <option value="">All Categories</option>
             @foreach($categories as $cat)
                 <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
@@ -91,7 +91,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select id="adj-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <select id="adj-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                     <option value="restock">Restock (Add)</option>
                     <option value="adjustment">Adjustment</option>
                     <option value="return">Return</option>
@@ -100,15 +100,15 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Quantity (use negative to deduct)</label>
                 <input type="number" id="adj-qty" placeholder="e.g. 10 or -5"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                 <input type="text" id="adj-notes" placeholder="Optional notes"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div class="flex gap-3 pt-2">
-                <button onclick="saveAdjustment()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                <button onclick="saveAdjustment()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
                 <button onclick="$('#adjust-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>

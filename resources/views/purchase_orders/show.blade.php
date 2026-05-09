@@ -61,7 +61,7 @@
     @if($purchaseOrder->status === 'pending')
     <div class="flex gap-3">
         <button onclick="receiveOrder({{ $purchaseOrder->id }})"
-            class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition">
+            class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm transition">
             <i class="fas fa-check mr-1"></i> Mark as Received
         </button>
         <button onclick="cancelOrder({{ $purchaseOrder->id }})"

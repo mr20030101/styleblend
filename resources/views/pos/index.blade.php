@@ -18,9 +18,9 @@
                 <div class="flex-1 relative">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     <input type="text" id="search-input" placeholder="Search products or scan barcode... (F2)"
-                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm">
+                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand text-sm">
                 </div>
-                <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                     <option value="">All Categories</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -59,11 +59,11 @@
                     <div class="flex-1 relative">
                         <i class="fas fa-user absolute left-3 top-2.5 text-gray-400 text-xs z-10"></i>
                         <input type="text" id="customer-search" placeholder="Search customer..."
-                            class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50"
+                            class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand bg-gray-50"
                             autocomplete="off">
                     </div>
                     <button onclick="openQuickAdd('')"
-                        class="flex-shrink-0 bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition"
+                        class="flex-shrink-0 bg-brand hover:bg-brand-dark text-white px-3 py-2 rounded-lg text-xs font-medium transition"
                         title="Add new customer">
                         <i class="fas fa-user-plus"></i>
                     </button>
@@ -100,7 +100,7 @@
                     <span class="text-xs font-medium text-gray-500">₱</span>
                     <input type="number" id="discount" value="0" min="0" step="0.01"
                         {{ $maxDiscount > 0 ? 'max="'.$maxDiscount.'"' : '' }}
-                        class="w-24 border border-gray-300 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-gray-500">
+                        class="w-24 border border-gray-300 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-brand">
                 </div>
                 @else
                 <span class="text-gray-400 text-xs">Disabled</span>
@@ -123,7 +123,7 @@
             </div>
 
             <button id="checkout-btn" onclick="openCheckout()"
-                class="w-full bg-gray-900 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled>
                 <i class="fas fa-credit-card mr-2"></i> Checkout (F12)
             </button>
@@ -175,7 +175,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid (₱)</label>
                 <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00"
-                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand"
                     oninput="calcChange()">
                 <div class="flex gap-2 mt-2">
                     @foreach([50, 100, 200, 500, 1000] as $amt)
@@ -220,7 +220,7 @@
         <div id="receipt-raffle"></div>
         <div class="flex gap-3 mt-4">
             <a id="print-receipt-btn" href="#" target="_blank"
-                class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-semibold transition">
+                class="flex-1 bg-brand hover:bg-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold transition">
                 <i class="fas fa-print mr-1"></i> Print Receipt
             </a>
             <a id="view-txn-btn" href="#" target="_blank"
@@ -246,22 +246,22 @@
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">Name <span class="text-gray-600">*</span></label>
                 <input type="text" id="qa-name" placeholder="Full name"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">Phone</label>
                 <input type="text" id="qa-phone" placeholder="+63 9XX XXX XXXX"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
                 <input type="email" id="qa-email" placeholder="optional"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             </div>
             <div id="qa-error" class="hidden text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"></div>
             <div class="flex gap-3 pt-1">
                 <button onclick="saveQuickCustomer()"
-                    class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2.5 rounded-lg text-sm font-medium transition">
+                    class="flex-1 bg-brand hover:bg-brand-dark text-white py-2.5 rounded-lg text-sm font-medium transition">
                     <i class="fas fa-save mr-1"></i> Save & Select
                 </button>
                 <button onclick="$('#quick-add-modal').addClass('hidden')"

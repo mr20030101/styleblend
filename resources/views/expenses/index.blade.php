@@ -4,7 +4,7 @@
 <div class="space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-800">Expenses</h2>
-        <button onclick="openModal()" class="bg-gray-900 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> Add Expense
         </button>
     </div>
@@ -34,10 +34,10 @@
     <!-- Filters -->
     <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
         <input type="date" name="date" value="{{ request('date') }}"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <input type="month" name="month" value="{{ request('month') }}"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-        <select name="category" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+        <select name="category" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             <option value="">All Categories</option>
             @foreach($categories as $cat)
             <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
@@ -91,21 +91,21 @@
         <input type="hidden" id="exp-id">
         <div class="space-y-3">
             <div><label class="block text-xs font-medium text-gray-700 mb-1">Title *</label>
-                <input type="text" id="e-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                <input type="text" id="e-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div><label class="block text-xs font-medium text-gray-700 mb-1">Category *</label>
-                    <select id="e-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    <select id="e-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                         @foreach($categories as $cat)<option value="{{ $cat }}">{{ $cat }}</option>@endforeach
                     </select></div>
                 <div><label class="block text-xs font-medium text-gray-700 mb-1">Amount *</label>
-                    <input type="number" id="e-amount" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                    <input type="number" id="e-amount" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             </div>
             <div><label class="block text-xs font-medium text-gray-700 mb-1">Date *</label>
-                <input type="date" id="e-date" value="{{ now()->toDateString() }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                <input type="date" id="e-date" value="{{ now()->toDateString() }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             <div><label class="block text-xs font-medium text-gray-700 mb-1">Notes</label>
-                <input type="text" id="e-notes" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></div>
+                <input type="text" id="e-notes" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></div>
             <div class="flex gap-3 pt-2">
-                <button onclick="saveExpense()" class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                <button onclick="saveExpense()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
                 <button onclick="$('#exp-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>

@@ -20,7 +20,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Supplier *</label>
-                    <select name="supplier_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    <select name="supplier_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                         <option value="">Select supplier</option>
                         @foreach($suppliers as $s)
                         <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -30,11 +30,11 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Order Date *</label>
                     <input type="date" name="order_date" value="{{ now()->toDateString() }}" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea name="notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+                    <textarea name="notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
                 </div>
             </div>
         </div>
@@ -42,7 +42,7 @@
         <div class="bg-white rounded-xl shadow p-6">
             <div class="flex justify-between items-center border-b pb-2 mb-4">
                 <h3 class="font-semibold text-gray-700">Items</h3>
-                <button type="button" onclick="addItem()" class="bg-gray-900 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg text-sm transition">
+                <button type="button" onclick="addItem()" class="bg-brand hover:bg-brand-dark text-white px-3 py-1.5 rounded-lg text-sm transition">
                     <i class="fas fa-plus mr-1"></i> Add Item
                 </button>
             </div>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="flex gap-3">
-            <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg font-medium transition">Create Order</button>
+            <button type="submit" class="bg-brand hover:bg-brand-dark text-white px-6 py-2.5 rounded-lg font-medium transition">Create Order</button>
             <a href="{{ route('purchase-orders.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition">Cancel</a>
         </div>
     </form>
@@ -78,19 +78,19 @@ function addItem() {
         <div class="col-span-2">
             <label class="block text-xs font-medium text-gray-600 mb-1">Product Variant *</label>
             <select name="items[${idx}][variant_id]" required onchange="fillCost(this, ${idx})"
-                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400">
+                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand">
                 ${variantOptions}
             </select>
         </div>
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Qty *</label>
             <input type="number" name="items[${idx}][quantity]" required min="1" placeholder="0" oninput="calcTotal()"
-                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400">
+                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand">
         </div>
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Cost Price *</label>
             <input type="number" name="items[${idx}][cost_price]" id="cost-${idx}" required min="0" step="0.01" placeholder="0.00" oninput="calcTotal()"
-                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400">
+                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand">
         </div>
         <div class="col-span-4 flex justify-end">
             <button type="button" onclick="document.getElementById('item-${idx}').remove(); calcTotal();"
