@@ -230,7 +230,7 @@
         <div class="flex gap-3 mt-4">
             <button id="print-receipt-btn" onclick="openReceipt()"
                 class="flex-1 bg-brand hover:bg-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold transition">
-                <i class="fas fa-print mr-1"></i>
+                <i class="fas fa-print mr-1"></i> Print
             </button>
             <a id="view-txn-btn" href="#" target="_blank"
                 class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-semibold transition text-center">
