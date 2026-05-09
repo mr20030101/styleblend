@@ -215,8 +215,8 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto">
-        <div class="p-4 md:p-6">
+    <main class="flex-1 overflow-y-auto flex flex-col">
+        <div class="flex-1 p-4 md:p-6">
             @if(session('success'))
                 <div class="mb-4 bg-gray-100 border border-gray-400 text-gray-700 px-4 py-3 rounded relative" id="flash-msg">
                     {{ session('success') }}
@@ -225,6 +225,22 @@
             @endif
             @yield('content')
         </div>
+        <footer class="border-t border-gray-200 px-4 md:px-6 py-3 flex items-center justify-between text-xs text-gray-400">
+            <div class="flex items-center gap-1.5">
+                <span style="font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:-0.3px;">
+                    <span class="text-navy">Track</span><span style="color:#1DB87A;">Buddy</span>
+                </span>
+                <span class="text-gray-300">&bull;</span>
+                <span>Point of Sale System</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:block">&copy; {{ date('Y') }} Shean Louise Margallo. All rights reserved.</span>
+                <a href="{{ route('about') }}"
+                   class="hover:text-navy transition-colors font-medium {{ request()->routeIs('about') ? 'text-navy' : '' }}">
+                    About
+                </a>
+            </div>
+        </footer>
     </main>
 </div>
 

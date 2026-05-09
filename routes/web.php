@@ -17,6 +17,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
 
+    // About
+    Route::get('/about', fn() => view('about'))->name('about');
+
     // Dashboard (admin only)
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('role:admin');
 
