@@ -134,10 +134,11 @@ function saveExpense() {
     });
 }
 function deleteExpense(id) {
-    if (!confirm('Delete this expense?')) return;
-    $.ajax({ url: `/expenses/${id}`, method: 'DELETE',
-        success: () => { showToast('Deleted.'); location.reload(); },
-        error: () => showToast('Error', 'error')
+    swalConfirm({ title: 'Delete Expense?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: `/expenses/${id}`, method: 'DELETE',
+            success: () => { showToast('Deleted.'); location.reload(); },
+            error: () => showToast('Error', 'error')
+        });
     });
 }
 </script>

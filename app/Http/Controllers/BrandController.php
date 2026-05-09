@@ -21,7 +21,7 @@ class BrandController extends Controller
             'name' => 'required|string|max:255|unique:brands,name',
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable'
         ]);
 
         if ($request->hasFile('logo')) {
@@ -36,13 +36,25 @@ class BrandController extends Controller
         return response()->json(['success' => true, 'message' => 'Brand created successfully.']);
     }
 
+    public function show(Brand $brand)
+    {
+        return response()->json([
+            'id'          => $brand->id,
+            'name'        => $brand->name,
+            'description' => $brand->description,
+            'logo'        => $brand->logo,
+            'logo_url'    => $brand->logo_url,
+            'is_active'   => $brand->is_active,
+        ]);
+    }
+
     public function update(Request $request, Brand $brand)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable'
         ]);
 
         if ($request->hasFile('logo')) {

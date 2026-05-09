@@ -4,6 +4,17 @@
 <div class="max-w-3xl space-y-6">
     <h2 class="text-2xl font-bold text-gray-800">Settings</h2>
 
+    @if ($errors->any())
+        <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+            <strong>Please fix the following errors:</strong>
+            <ul class="list-disc ml-5 mt-1 space-y-0.5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
 

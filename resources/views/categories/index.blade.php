@@ -94,10 +94,11 @@ function saveCategory() {
     });
 }
 function deleteCategory(id) {
-    if (!confirm('Delete this category?')) return;
-    $.ajax({ url: `/categories/${id}`, method: 'DELETE',
-        success: (res) => { showToast(res.message); location.reload(); },
-        error: (xhr) => showToast(xhr.responseJSON?.message || 'Error', 'error')
+    swalConfirm({ title: 'Delete Category?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: `/categories/${id}`, method: 'DELETE',
+            success: (res) => { showToast(res.message); location.reload(); },
+            error: (xhr) => showToast(xhr.responseJSON?.message || 'Error', 'error')
+        });
     });
 }
 </script>

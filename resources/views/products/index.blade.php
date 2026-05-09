@@ -100,10 +100,11 @@
 @push('scripts')
 <script>
 function deleteProduct(id) {
-    if (!confirm('Delete this product?')) return;
-    $.ajax({ url: '/products/' + id, method: 'DELETE',
-        success: () => { showToast('Product deleted.'); location.reload(); },
-        error: () => showToast('Failed to delete.', 'error')
+    swalConfirm({ title: 'Delete Product?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: '/products/' + id, method: 'DELETE',
+            success: () => { showToast('Product deleted.'); location.reload(); },
+            error: () => showToast('Failed to delete.', 'error')
+        });
     });
 }
 </script>

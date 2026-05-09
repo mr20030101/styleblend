@@ -176,10 +176,11 @@ function saveVariant() {
 }
 
 function deleteVariant(id) {
-    if (!confirm('Delete this variant?')) return;
-    $.ajax({ url: `/variants/${id}`, method: 'DELETE',
-        success: () => { showToast('Variant deleted.'); $(`#vrow-${id}`).remove(); },
-        error: () => showToast('Error deleting variant.', 'error')
+    swalConfirm({ title: 'Delete Variant?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: `/variants/${id}`, method: 'DELETE',
+            success: () => { showToast('Variant deleted.'); $(`#vrow-${id}`).remove(); },
+            error: () => showToast('Error deleting variant.', 'error')
+        });
     });
 }
 </script>

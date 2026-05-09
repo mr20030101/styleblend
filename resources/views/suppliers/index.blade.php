@@ -92,10 +92,11 @@ function saveSupplier() {
     });
 }
 function deleteSupplier(id) {
-    if (!confirm('Delete this supplier?')) return;
-    $.ajax({ url: `/suppliers/${id}`, method: 'DELETE',
-        success: () => { showToast('Deleted.'); location.reload(); },
-        error: () => showToast('Error', 'error')
+    swalConfirm({ title: 'Delete Supplier?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: `/suppliers/${id}`, method: 'DELETE',
+            success: () => { showToast('Deleted.'); location.reload(); },
+            error: () => showToast('Error', 'error')
+        });
     });
 }
 </script>

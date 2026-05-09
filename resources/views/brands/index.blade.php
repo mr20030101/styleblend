@@ -172,18 +172,18 @@ function editBrand(id) {
 }
 
 function deleteBrand(id) {
-    if (!confirm('Are you sure you want to delete this brand?')) return;
-    
-    $.ajax({
-        url: `/brands/${id}`,
-        method: 'DELETE',
-        success: function(response) {
-            showToast(response.message);
-            location.reload();
-        },
-        error: function(xhr) {
-            showToast(xhr.responseJSON?.message || 'Error deleting brand', 'error');
-        }
+    swalConfirm({ title: 'Delete Brand?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({
+            url: `/brands/${id}`,
+            method: 'DELETE',
+            success: function(response) {
+                showToast(response.message);
+                location.reload();
+            },
+            error: function(xhr) {
+                showToast(xhr.responseJSON?.message || 'Error deleting brand', 'error');
+            }
+        });
     });
 }
 

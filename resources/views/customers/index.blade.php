@@ -132,10 +132,11 @@ function saveCustomer() {
     });
 }
 function deleteCustomer(id) {
-    if (!confirm('Delete this customer?')) return;
-    $.ajax({ url: `/customers/${id}`, method: 'DELETE',
-        success: () => { showToast('Deleted.'); location.reload(); },
-        error: () => showToast('Error', 'error')
+    swalConfirm({ title: 'Delete Customer?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: `/customers/${id}`, method: 'DELETE',
+            success: () => { showToast('Deleted.'); location.reload(); },
+            error: () => showToast('Error', 'error')
+        });
     });
 }
 </script>

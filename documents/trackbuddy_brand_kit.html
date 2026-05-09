@@ -1,0 +1,569 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500&display=swap');
+
+  :root {
+    --tb-green: #1DB87A;
+    --tb-green-dark: #0F8A58;
+    --tb-green-light: #E3F9EE;
+    --tb-navy: #1A2B3C;
+    --tb-slate: #4A6070;
+    --tb-sand: #F5F2EC;
+    --tb-white: #FFFFFF;
+    --tb-accent: #FF6B35;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body, .kit-wrap {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+  }
+
+  .kit-wrap { padding: 32px 24px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .section { margin-bottom: 40px; }
+
+  /* LOGO SECTION */
+  .logo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .logo-box {
+    border-radius: var(--border-radius-lg);
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .logo-box.light { background: #FFFFFF; }
+  .logo-box.dark { background: #1A2B3C; }
+  .logo-box.green { background: #1DB87A; }
+
+  .logo-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    color: white;
+    letter-spacing: -1px;
+  }
+
+  .logo-mark.on-light { background: #1DB87A; }
+  .logo-mark.on-dark { background: #1DB87A; }
+  .logo-mark.on-green { background: white; color: #1DB87A; }
+
+  .logo-wordmark {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.3px;
+  }
+  .logo-wordmark .track { color: #1A2B3C; }
+  .logo-wordmark .buddy { color: #1DB87A; }
+  .logo-wordmark.on-dark .track { color: #FFFFFF; }
+  .logo-wordmark.on-dark .buddy { color: #1DB87A; }
+  .logo-wordmark.on-green .track { color: #FFFFFF; }
+  .logo-wordmark.on-green .buddy { color: #FFFFFF; }
+
+  .logo-tag {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* ICON VARIANTS */
+  .icon-grid {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .icon-variant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-variant .label {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+  }
+
+  .app-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 32px;
+    color: white;
+    letter-spacing: -1px;
+  }
+
+  .app-icon.primary { background: linear-gradient(135deg, #1DB87A 0%, #0F8A58 100%); }
+  .app-icon.navy { background: #1A2B3C; }
+  .app-icon.mono { background: #888; }
+
+  .app-icon-sm {
+    width: 40px; height: 40px; border-radius: 10px;
+    font-size: 20px;
+  }
+  .app-icon-xs {
+    width: 24px; height: 24px; border-radius: 6px;
+    font-size: 12px;
+  }
+
+  /* COLORS */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+
+  .color-chip {
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .color-swatch {
+    height: 60px;
+    width: 100%;
+  }
+
+  .color-info {
+    padding: 8px 10px;
+    background: var(--color-background-primary);
+  }
+
+  .color-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .color-hex {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-text-secondary);
+  }
+
+  /* TYPOGRAPHY */
+  .type-row {
+    padding: 16px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+  }
+
+  .type-row:last-child { border-bottom: none; }
+
+  .type-meta {
+    min-width: 140px;
+  }
+
+  .type-meta .role {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-secondary);
+  }
+
+  .type-meta .spec {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+
+  /* UI SAMPLES */
+  .ui-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .ui-card {
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    border: 0.5px solid var(--color-border-tertiary);
+    overflow: hidden;
+  }
+
+  .ui-card-header {
+    padding: 14px 16px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+  }
+
+  .ui-card-body { padding: 16px; }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .tb-btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tb-btn-primary { background: #1DB87A; color: white; }
+  .tb-btn-secondary { background: #E3F9EE; color: #0F8A58; }
+  .tb-btn-outline { background: transparent; color: #1A2B3C; border: 1.5px solid #D0D8E0; }
+  .tb-btn-danger { background: #FDEAEA; color: #C0392B; }
+  .tb-btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+  /* Badge */
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .tb-badge {
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
+  }
+  .badge-success { background: #E3F9EE; color: #0F8A58; }
+  .badge-warning { background: #FFF3E0; color: #E67E22; }
+  .badge-danger { background: #FDEAEA; color: #C0392B; }
+  .badge-info { background: #E8F4FD; color: #1A6CA8; }
+  .badge-neutral { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+  /* Stat card */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .stat-card {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 14px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; margin-bottom: 4px; }
+  .stat-value { font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 800; color: var(--color-text-primary); }
+  .stat-delta { font-size: 11px; color: #1DB87A; font-weight: 600; margin-top: 2px; }
+
+  /* Mini POS */
+  .pos-wrap {
+    background: #1A2B3C;
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .pos-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #A0B4C4;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .pos-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    font-size: 13px;
+  }
+
+  .pos-item-name { color: #FFFFFF; font-weight: 500; }
+  .pos-item-price { color: #1DB87A; font-family: 'Nunito', sans-serif; font-weight: 700; }
+
+  .pos-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0 0;
+    margin-top: 4px;
+  }
+
+  .pos-total-label { color: #A0B4C4; font-size: 13px; font-weight: 600; }
+  .pos-total-value { color: #FFFFFF; font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900; }
+
+  /* TAGLINE */
+  .tagline-box {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .tagline-main {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .tagline-sub {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+
+  .tagline-accent { color: #1DB87A; }
+
+  .tagline-alt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .tagline-alt {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 12px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    text-align: center;
+  }
+</style>
+
+<div class="kit-wrap">
+
+  <!-- LOGO VARIANTS -->
+  <div class="section">
+    <div class="section-label">Logo variants</div>
+    <div class="logo-grid">
+      <div class="logo-box light">
+        <div class="logo-mark on-light">TB</div>
+        <div class="logo-wordmark"><span class="track">Track</span><span class="buddy">Buddy</span></div>
+        <span class="logo-tag">Light background</span>
+      </div>
+      <div class="logo-box dark">
+        <div class="logo-mark on-dark">TB</div>
+        <div class="logo-wordmark on-dark"><span class="track">Track</span><span class="buddy">Buddy</span></div>
+        <span class="logo-tag" style="color:#5A7A8A;">Dark background</span>
+      </div>
+      <div class="logo-box green">
+        <div class="logo-mark on-green">TB</div>
+        <div class="logo-wordmark on-green"><span class="track">Track</span><span class="buddy">Buddy</span></div>
+        <span class="logo-tag" style="color:rgba(255,255,255,0.6);">Brand green</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP ICON SIZES -->
+  <div class="section">
+    <div class="section-label">App icon & sizes</div>
+    <div class="icon-grid">
+      <div class="icon-variant">
+        <div class="app-icon primary">TB</div>
+        <span class="label">Primary · 64px</span>
+      </div>
+      <div class="icon-variant">
+        <div class="app-icon navy">TB</div>
+        <span class="label">Navy · 64px</span>
+      </div>
+      <div class="icon-variant">
+        <div class="app-icon mono">TB</div>
+        <span class="label">Mono · 64px</span>
+      </div>
+      <div class="icon-variant">
+        <div class="app-icon primary app-icon-sm">TB</div>
+        <span class="label">40px</span>
+      </div>
+      <div class="icon-variant">
+        <div class="app-icon navy app-icon-sm">TB</div>
+        <span class="label">40px</span>
+      </div>
+      <div class="icon-variant">
+        <div class="app-icon primary app-icon-xs">TB</div>
+        <span class="label">24px</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR PALETTE -->
+  <div class="section">
+    <div class="section-label">Color palette</div>
+    <div class="color-grid">
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#1DB87A;"></div>
+        <div class="color-info"><span class="color-name">Buddy Green</span><span class="color-hex">#1DB87A</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#0F8A58;"></div>
+        <div class="color-info"><span class="color-name">Deep Green</span><span class="color-hex">#0F8A58</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#E3F9EE;"></div>
+        <div class="color-info"><span class="color-name">Mint Mist</span><span class="color-hex">#E3F9EE</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#1A2B3C;"></div>
+        <div class="color-info"><span class="color-name">Ink Navy</span><span class="color-hex">#1A2B3C</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#FF6B35;"></div>
+        <div class="color-info"><span class="color-name">Alert Orange</span><span class="color-hex">#FF6B35</span></div>
+      </div>
+      <div class="color-chip">
+        <div class="color-swatch" style="background:#F5F2EC;"></div>
+        <div class="color-info"><span class="color-name">Warm Sand</span><span class="color-hex">#F5F2EC</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="section">
+    <div class="section-label">Typography</div>
+    <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 8px 20px;">
+      <div class="type-row">
+        <div class="type-meta"><div class="role">Display</div><div class="spec">Nunito 900 · 32px</div></div>
+        <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:32px;letter-spacing:-0.5px;">TrackBuddy</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="role">Heading 1</div><div class="spec">Nunito 800 · 22px</div></div>
+        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;">Sales Dashboard</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="role">Heading 2</div><div class="spec">Nunito 700 · 17px</div></div>
+        <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:17px;">Today's Transactions</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="role">Body</div><div class="spec">DM Sans 400 · 15px</div></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;">Manage your store inventory and sales in one friendly place.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="role">Caption</div><div class="spec">DM Sans 500 · 12px</div></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--color-text-secondary);">Last updated 2 minutes ago</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI COMPONENTS -->
+  <div class="section">
+    <div class="section-label">UI components</div>
+    <div class="ui-grid">
+
+      <div class="ui-card">
+        <div class="ui-card-header">Buttons</div>
+        <div class="ui-card-body">
+          <div class="btn-row" style="margin-bottom:10px;">
+            <button class="tb-btn tb-btn-primary">Add Item</button>
+            <button class="tb-btn tb-btn-secondary">Export</button>
+          </div>
+          <div class="btn-row">
+            <button class="tb-btn tb-btn-outline">Cancel</button>
+            <button class="tb-btn tb-btn-danger tb-btn-sm">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-card">
+        <div class="ui-card-header">Badges & status</div>
+        <div class="ui-card-body">
+          <div class="badge-row">
+            <span class="tb-badge badge-success">In Stock</span>
+            <span class="tb-badge badge-warning">Low Stock</span>
+            <span class="tb-badge badge-danger">Out of Stock</span>
+          </div>
+          <div class="badge-row" style="margin-top:10px;">
+            <span class="tb-badge badge-info">Paid</span>
+            <span class="tb-badge badge-neutral">Pending</span>
+            <span class="tb-badge badge-success">Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-card">
+        <div class="ui-card-header">Dashboard stats</div>
+        <div class="ui-card-body">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-label">Sales today</div>
+              <div class="stat-value">₱8,420</div>
+              <div class="stat-delta">↑ 12%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Orders</div>
+              <div class="stat-value">34</div>
+              <div class="stat-delta">↑ 5%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Items left</div>
+              <div class="stat-value">218</div>
+              <div class="stat-delta" style="color: #E67E22;">↓ 3%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-card">
+        <div class="ui-card-header">POS receipt snippet</div>
+        <div class="ui-card-body">
+          <div class="pos-wrap">
+            <div class="pos-title">Order #0042</div>
+            <div class="pos-item"><span class="pos-item-name">Milk Tea (L)</span><span class="pos-item-price">₱85</span></div>
+            <div class="pos-item"><span class="pos-item-name">Sisig Rice</span><span class="pos-item-price">₱120</span></div>
+            <div class="pos-item"><span class="pos-item-name">Bottled Water</span><span class="pos-item-price">₱25</span></div>
+            <div class="pos-total"><span class="pos-total-label">Total</span><span class="pos-total-value">₱230</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAGLINES -->
+  <div class="section">
+    <div class="section-label">Taglines</div>
+    <div class="tagline-box">
+      <div class="tagline-main">Your business, <span class="tagline-accent">always on track.</span></div>
+      <div class="tagline-sub">Primary tagline — friendly, confident, memorable</div>
+      <div class="tagline-alt-grid">
+        <div class="tagline-alt">"Sell more. Stress less."</div>
+        <div class="tagline-alt">"Simple POS for every shop."</div>
+        <div class="tagline-alt">"The buddy your business needs."</div>
+      </div>
+    </div>
+  </div>
+
+</div>

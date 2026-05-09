@@ -122,10 +122,11 @@ function saveUser() {
     });
 }
 function deleteUser(id) {
-    if (!confirm('Delete this user?')) return;
-    $.ajax({ url: `/users/${id}`, method: 'DELETE',
-        success: () => { showToast('User deleted.'); location.reload(); },
-        error: (xhr) => showToast(xhr.responseJSON?.message || 'Error', 'error')
+    swalConfirm({ title: 'Delete User?', text: 'This action cannot be undone.', confirmText: 'Yes, delete it!' }, () => {
+        $.ajax({ url: `/users/${id}`, method: 'DELETE',
+            success: () => { showToast('User deleted.'); location.reload(); },
+            error: (xhr) => showToast(xhr.responseJSON?.message || 'Error', 'error')
+        });
     });
 }
 </script>

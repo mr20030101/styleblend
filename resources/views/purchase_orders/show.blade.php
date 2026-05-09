@@ -75,17 +75,19 @@
 @push('scripts')
 <script>
 function receiveOrder(id) {
-    if (!confirm('Mark as received? Stock will be updated.')) return;
-    $.ajax({ url: `/purchase-orders/${id}/receive`, method: 'POST',
-        success: res => { showToast(res.message); location.reload(); },
-        error: xhr => showToast(xhr.responseJSON?.message || 'Error', 'error')
+    swalConfirm({ title: 'Receive Order?', text: 'Stock will be updated accordingly.', confirmText: 'Yes, receive it!', icon: 'question' }, () => {
+        $.ajax({ url: `/purchase-orders/${id}/receive`, method: 'POST',
+            success: res => { showToast(res.message); location.reload(); },
+            error: xhr => showToast(xhr.responseJSON?.message || 'Error', 'error')
+        });
     });
 }
 function cancelOrder(id) {
-    if (!confirm('Cancel this order?')) return;
-    $.ajax({ url: `/purchase-orders/${id}/cancel`, method: 'POST',
-        success: () => { showToast('Cancelled.'); window.location = '{{ route("purchase-orders.index") }}'; },
-        error: xhr => showToast(xhr.responseJSON?.message || 'Error', 'error')
+    swalConfirm({ title: 'Cancel Order?', text: 'This action cannot be undone.', confirmText: 'Yes, cancel it!' }, () => {
+        $.ajax({ url: `/purchase-orders/${id}/cancel`, method: 'POST',
+            success: () => { showToast('Cancelled.'); window.location = '{{ route("purchase-orders.index") }}'; },
+            error: xhr => showToast(xhr.responseJSON?.message || 'Error', 'error')
+        });
     });
 }
 </script>

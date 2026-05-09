@@ -7,6 +7,7 @@
     <title>@yield('title', 'Clothing Store POS')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -119,23 +120,35 @@
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-4 right-4 z-50 hidden">
-    <div id="toast-body" class="px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium"></div>
-</div>
-
 <script>
 $(document).ready(function() {
     $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 });
 
 function showToast(msg, type = 'success') {
-    const toast = $('#toast');
-    const body = $('#toast-body');
-    body.text(msg);
-    body.removeClass('bg-gray-800 bg-red-600 bg-yellow-600');
-    body.addClass(type === 'success' ? 'bg-gray-800' : type === 'error' ? 'bg-red-600' : 'bg-yellow-600');
-    toast.removeClass('hidden');
-    setTimeout(() => toast.addClass('hidden'), 3000);
+    const iconMap = { success: 'success', error: 'error', warning: 'warning' };
+    Swal.fire({
+        toast: true,
+        position: 'bottom-end',
+        icon: iconMap[type] || 'success',
+        title: msg,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+    });
+}
+
+function swalConfirm({ title, text, confirmText = 'Yes', icon = 'warning' }, onConfirm) {
+    Swal.fire({
+        title,
+        text,
+        icon,
+        showCancelButton: true,
+        confirmButtonColor: '#111827',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: confirmText,
+        cancelButtonText: 'Cancel',
+    }).then(result => { if (result.isConfirmed) onConfirm(); });
 }
 </script>
 @stack('scripts')

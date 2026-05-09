@@ -22,7 +22,7 @@ class SettingController extends Controller
             'store_phone'         => 'nullable|string|max:50',
             'store_email'         => 'nullable|email|max:100',
             'store_footer'        => 'nullable|string|max:255',
-            'store_logo'          => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
+            'store_logo'          => 'nullable|mimes:png,jpg,jpeg,svg,webp|max:2048',
             'tax_enabled'         => 'boolean',
             'tax_rate'            => 'required|numeric|min:0|max:100',
             'tax_label'           => 'required|string|max:20',
