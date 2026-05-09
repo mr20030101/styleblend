@@ -95,7 +95,7 @@
                         {{ number_format($margin, 1) }}% margin
                     </span>
                 </div>
-                <button onclick="editVariant({{ $v->id }}, '{{ $v->size }}', '{{ $v->color }}', {{ $v->price }}, {{ $v->stock_quantity }})"
+                <button onclick="editVariant({{ $v->id }}, '{{ $v->size }}', '{{ $v->color }}', {{ $v->price }}, {{ $v->cost_price ?? 0 }}, {{ $v->stock_quantity }})"
                     class="text-gray-900 hover:text-indigo-800 text-sm px-2"><i class="fas fa-edit"></i></button>
                 <button onclick="deleteVariant({{ $v->id }})" class="text-gray-600 hover:text-gray-700 text-sm px-2"><i class="fas fa-trash"></i></button>
             </div>
@@ -113,9 +113,8 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                    <select id="v-size" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-                        <option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option>
-                    </select>
+                    <input type="text" id="v-size" placeholder="e.g. M, L, 28, 6Y"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
@@ -153,14 +152,14 @@ const productId = {{ $product->id }};
 function showAddVariant() {
     $('#variant-modal-title').text('Add Variant');
     $('#edit-variant-id').val('');
-    $('#v-size').val('M'); $('#v-color').val(''); $('#v-price').val(''); $('#v-cost').val(''); $('#v-stock').val('');
+    $('#v-size').val(''); $('#v-color').val(''); $('#v-price').val(''); $('#v-cost').val(''); $('#v-stock').val('');
     $('#variant-modal').removeClass('hidden');
 }
 
-function editVariant(id, size, color, price, stock) {
+function editVariant(id, size, color, price, cost, stock) {
     $('#variant-modal-title').text('Edit Variant');
     $('#edit-variant-id').val(id);
-    $('#v-size').val(size); $('#v-color').val(color); $('#v-price').val(price); $('#v-stock').val(stock);
+    $('#v-size').val(size); $('#v-color').val(color); $('#v-price').val(price); $('#v-cost').val(cost); $('#v-stock').val(stock);
     $('#variant-modal').removeClass('hidden');
 }
 
