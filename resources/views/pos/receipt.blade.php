@@ -114,15 +114,15 @@
             window.print();
         }
 
-        // Auto-print: wait for all assets (fonts, images) to fully load
-        window.addEventListener('load', function () {
-            setTimeout(triggerPrint, 600);
-        });
-
-        // Close popup automatically after printing on macOS
-        window.addEventListener('afterprint', function () {
-            setTimeout(function () { window.close(); }, 300);
-        });
+        // Only auto-print when opened as a standalone popup, not inside an iframe (POS handles that itself)
+        if (window === window.top) {
+            window.addEventListener('load', function () {
+                setTimeout(triggerPrint, 600);
+            });
+            window.addEventListener('afterprint', function () {
+                setTimeout(function () { window.close(); }, 300);
+            });
+        }
     </script>
 </body>
 </html>

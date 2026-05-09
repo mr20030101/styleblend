@@ -729,11 +729,24 @@ function processCheckout() {
 function openReceipt() {
     const url = $('#print-receipt-btn').data('receipt-url');
     if (!url) return;
-    const popup = window.open(url, 'receipt_print',
-        'width=420,height=700,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
-    );
-    if (popup) popup.focus();
-    else window.open(url, '_blank'); // fallback if popup is blocked
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;';
+    document.body.appendChild(iframe);
+
+    iframe.onload = function () {
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        } catch (e) {
+            window.open(url, '_blank');
+        }
+        setTimeout(function () {
+            if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        }, 5000);
+    };
+
+    iframe.src = url;
 }
 
 function newTransaction() {
