@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Expense extends Model
+{
+    protected $fillable = ['title', 'category', 'amount', 'expense_date', 'notes', 'user_id'];
+
+    protected $casts = ['expense_date' => 'date', 'amount' => 'decimal:2'];
+
+    public function user() { return $this->belongsTo(User::class); }
+
+    public static function categories(): array
+    {
+        return ['Rent', 'Utilities', 'Supplies', 'Salary', 'Marketing', 'Maintenance', 'Other'];
+    }
+}

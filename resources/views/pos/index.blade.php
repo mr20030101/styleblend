@@ -1,0 +1,684 @@
+@extends('layouts.app')
+@section('title', 'POS')
+@push('styles')
+<style>
+.product-card { transition: transform 0.15s, box-shadow 0.15s; position: relative; z-index: 1; }
+.product-card:hover { transform: translateY(-2px); box-shadow: 0 0 0 2px #111, 0 8px 20px rgba(0,0,0,0.1); z-index: 10; }
+#cart-items::-webkit-scrollbar { width: 4px; }
+#cart-items::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+</style>
+@endpush
+@section('content')
+<div class="flex gap-4 h-[calc(100vh-6rem)]">
+
+    <!-- LEFT: Product Grid -->
+    <div class="flex-1 flex flex-col min-w-0">
+        <div class="bg-white rounded-xl shadow p-4 mb-4">
+            <div class="flex gap-3">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <input type="text" id="search-input" placeholder="Search products or scan barcode... (F2)"
+                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm">
+                </div>
+                <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+                <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)"
+                    class="flex-shrink-0 border border-gray-300 hover:bg-gray-100 text-gray-600 px-3 rounded-lg transition">
+                    <i id="fullscreen-icon" class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto">
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-1">
+                <div class="col-span-full text-center py-12 text-gray-400">
+                    <i class="fas fa-spinner fa-spin text-4xl mb-3"></i>
+                    <p>Loading products...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Cart -->
+    <div class="w-96 flex-shrink-0 bg-white rounded-xl shadow flex flex-col overflow-visible">
+        <div class="p-4 border-b border-gray-100">
+            <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                <i class="fas fa-shopping-cart text-gray-900"></i> Cart
+                <span id="cart-count" class="bg-gray-900 text-white text-xs rounded-full px-2 py-0.5 ml-auto">0</span>
+            </h2>
+        </div>
+
+        <!-- Customer Lookup -->
+        <div class="px-4 pt-3 pb-2 border-b border-gray-100">
+            <div class="relative">
+                <div id="customer-wrap" class="relative flex gap-2">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-user absolute left-3 top-2.5 text-gray-400 text-xs z-10"></i>
+                        <input type="text" id="customer-search" placeholder="Search customer..."
+                            class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-gray-400 bg-gray-50"
+                            autocomplete="off">
+                    </div>
+                    <button onclick="openQuickAdd('')"
+                        class="flex-shrink-0 bg-gray-900 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition"
+                        title="Add new customer">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                </div>
+                <div id="customer-dropdown" class="absolute left-0 right-10 z-30 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 hidden max-h-48 overflow-y-auto"></div>
+            </div>
+            <div id="customer-selected" class="hidden mt-2 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                <i class="fas fa-user-check text-gray-700 text-xs"></i>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-gray-800 truncate" id="sel-name"></p>
+                    <p class="text-xs text-gray-500" id="sel-phone"></p>
+                </div>
+                <button onclick="clearCustomer()" class="text-gray-400 hover:text-gray-900 text-xs ml-1"><i class="fas fa-times"></i></button>
+            </div>
+            <input type="hidden" id="selected-customer-id">
+        </div>
+
+        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div id="empty-cart" class="text-center py-12 text-gray-400">
+                <i class="fas fa-shopping-cart text-4xl mb-3"></i>
+                <p class="text-sm">Cart is empty</p>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 p-4 space-y-3">
+            <div class="flex justify-between text-sm text-gray-600">
+                <span>Subtotal</span>
+                <span id="subtotal">₱0.00</span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 items-center">
+                <span>Discount</span>
+                @if($discountEnabled)
+                <div class="flex items-center gap-1">
+                    <span class="text-xs font-medium text-gray-500">₱</span>
+                    <input type="number" id="discount" value="0" min="0" step="0.01"
+                        {{ $maxDiscount > 0 ? 'max="'.$maxDiscount.'"' : '' }}
+                        class="w-24 border border-gray-300 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-gray-500">
+                </div>
+                @else
+                <span class="text-gray-400 text-xs">Disabled</span>
+                <input type="hidden" id="discount" value="0">
+                @endif
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 items-center">
+                <span>{{ $taxLabel }} @if($taxEnabled)({{ $taxRate }}%)@endif</span>
+                @if($taxEnabled && !$taxInclusive)
+                <span id="tax-display" class="text-sm text-gray-600">₱ 0.00</span>
+                <input type="hidden" id="tax" value="0">
+                @else
+                <span class="text-gray-400 text-xs">{{ $taxInclusive ? 'Included in price' : 'Disabled' }}</span>
+                <input type="hidden" id="tax" value="0">
+                @endif
+            </div>
+            <div class="flex justify-between font-bold text-lg border-t pt-3">
+                <span>Total</span>
+                <span id="total" class="text-gray-900">₱0.00</span>
+            </div>
+
+            <button id="checkout-btn" onclick="openCheckout()"
+                class="w-full bg-gray-900 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
+                <i class="fas fa-credit-card mr-2"></i> Checkout (F12)
+            </button>
+            <!-- Raffle preview -->
+            <div id="raffle-preview" class="hidden bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-center text-xs text-gray-800 font-medium">
+                🎟 <span id="raffle-entries-count"></span> will be generated
+            </div>
+            <button onclick="clearCart()" class="w-full border border-gray-300 text-gray-600 hover:bg-gray-50 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-trash mr-1"></i> Clear Cart
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Variant Selection Modal -->
+<div id="variant-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg text-gray-800" id="modal-product-name">Select Variant</h3>
+            <button onclick="closeVariantModal()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+        <div id="variant-options" class="space-y-2 max-h-80 overflow-y-auto"></div>
+    </div>
+</div>
+
+<!-- Checkout Modal -->
+<div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg text-gray-800">Checkout</h3>
+            <button onclick="closeCheckout()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+        <div class="space-y-4">
+            <!-- Customer row -->
+            <div id="co-customer-row" class="hidden bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 flex items-center gap-2 text-sm">
+                <i class="fas fa-user text-gray-500 text-xs"></i>
+                <span id="co-customer" class="text-gray-800 font-medium"></span>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                <div class="flex justify-between"><span>Subtotal</span><span id="co-subtotal">₱0.00</span></div>
+                <div class="flex justify-between"><span>Discount</span><span id="co-discount">₱0.00</span></div>
+                <div class="flex justify-between"><span>Tax</span><span id="co-tax">₱0.00</span></div>
+                <div class="flex justify-between font-bold text-base border-t pt-2"><span>Total</span><span id="co-total" class="text-gray-900">₱0.00</span></div>
+            </div>
+            <!-- Raffle preview -->
+            <div id="co-raffle-row" class="hidden bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-800 font-medium text-center">
+                <span id="co-raffle"></span>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid (₱)</label>
+                <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    oninput="calcChange()">
+                <div class="flex gap-2 mt-2">
+                    @foreach([50, 100, 200, 500, 1000] as $amt)
+                    <button onclick="setAmount({{ $amt }})" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-1.5 rounded transition">{{ $amt }}</button>
+                    @endforeach
+                </div>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex justify-between items-center">
+                <span class="font-medium text-gray-700">Change</span>
+                <span id="change-display" class="text-2xl font-bold text-gray-700">₱0.00</span>
+            </div>
+            <button id="process-btn" onclick="processCheckout()"
+                class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 rounded-lg transition">
+                <i class="fas fa-check mr-2"></i> Process Payment
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div id="receipt-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 text-center">
+        <div class="w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-check text-white text-2xl"></i>
+        </div>
+        <h3 class="font-bold text-xl text-gray-800 mb-1">Payment Successful!</h3>
+        <p class="text-gray-400 text-sm mb-4" id="receipt-txn"></p>
+        <div class="bg-gray-50 rounded-xl p-4 mb-3 text-left text-sm space-y-2">
+            <div class="flex justify-between">
+                <span class="text-gray-500">Total</span>
+                <span id="receipt-total" class="font-bold text-gray-800"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-500">Paid</span>
+                <span id="receipt-paid" class="text-gray-700"></span>
+            </div>
+            <div class="flex justify-between border-t pt-2">
+                <span class="font-semibold text-gray-700">Change</span>
+                <span id="receipt-change" class="font-bold text-gray-700 text-base"></span>
+            </div>
+        </div>
+        <div id="receipt-raffle"></div>
+        <div class="flex gap-3 mt-4">
+            <a id="print-receipt-btn" href="#" target="_blank"
+                class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-semibold transition">
+                <i class="fas fa-print mr-1"></i> Print Receipt
+            </a>
+            <a id="view-txn-btn" href="#" target="_blank"
+                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-semibold transition text-center">
+                <i class="fas fa-eye mr-1"></i> View
+            </a>
+            <button onclick="newTransaction()"
+                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-semibold transition">
+                New Sale
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Customer Modal -->
+<div id="quick-add-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-user-plus text-gray-700 mr-2"></i>New Customer</h3>
+            <button onclick="$('#quick-add-modal').addClass('hidden')" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Name <span class="text-gray-600">*</span></label>
+                <input type="text" id="qa-name" placeholder="Full name"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Phone</label>
+                <input type="text" id="qa-phone" placeholder="+63 9XX XXX XXXX"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="qa-email" placeholder="optional"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            </div>
+            <div id="qa-error" class="hidden text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"></div>
+            <div class="flex gap-3 pt-1">
+                <button onclick="saveQuickCustomer()"
+                    class="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2.5 rounded-lg text-sm font-medium transition">
+                    <i class="fas fa-save mr-1"></i> Save & Select
+                </button>
+                <button onclick="$('#quick-add-modal').addClass('hidden')"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+
+@push('scripts')
+<script>
+const TAX_ENABLED      = {{ $taxEnabled ? 'true' : 'false' }};
+const TAX_RATE         = {{ $taxRate }};
+const TAX_INCLUSIVE    = {{ $taxInclusive ? 'true' : 'false' }};
+const DISCOUNT_ENABLED = {{ $discountEnabled ? 'true' : 'false' }};
+const MAX_DISCOUNT     = {{ $maxDiscount }};
+const RAFFLE_ENABLED   = {{ \App\Models\Setting::get('raffle_enabled','1') == '1' ? 'true' : 'false' }};
+const RAFFLE_PER_ENTRY = {{ (float)\App\Models\Setting::get('raffle_per_entry', 300) }};
+
+let cart = [];
+let searchTimeout, customerSearchTimeout;
+let selectedCustomer = null;
+
+// ── Product search ──────────────────────────────────────────
+$('#search-input').on('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(searchProducts, 300);
+});
+$('#category-filter').on('change', searchProducts);
+
+function searchProducts() {
+    $.get('{{ route("pos.search") }}', {
+        search: $('#search-input').val(),
+        category_id: $('#category-filter').val()
+    }, renderProducts);
+}
+
+function renderProducts(products) {
+    if (!products.length) {
+        $('#product-grid').html('<div class="col-span-full text-center py-12 text-gray-400"><i class="fas fa-box-open text-4xl mb-3"></i><p>No products found</p></div>');
+        return;
+    }
+    let html = '';
+    products.forEach(p => {
+        const totalStock = p.variants.reduce((s, v) => s + v.stock_quantity, 0);
+        const minPrice   = Math.min(...p.variants.map(v => parseFloat(v.price)));
+        html += `
+        <div class="product-card bg-white rounded-xl shadow cursor-pointer overflow-hidden"
+             onclick="selectProduct(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+            <div class="aspect-square bg-gray-100 overflow-hidden">
+                <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.src='/images/no-image.png'">
+            </div>
+            <div class="p-3">
+                <p class="font-semibold text-gray-800 text-sm truncate">${p.name}</p>
+                <p class="text-xs text-gray-400">${p.category}</p>
+                <div class="flex justify-between items-center mt-1">
+                    <span class="text-gray-900 font-bold text-sm">₱${parseFloat(minPrice).toFixed(2)}</span>
+                    <span class="text-xs ${totalStock <= 5 ? 'text-gray-600' : 'text-gray-400'}">${totalStock} in stock</span>
+                </div>
+            </div>
+        </div>`;
+    });
+    $('#product-grid').html(html);
+}
+
+// ── Customer search ─────────────────────────────────────────
+$('#customer-search').on('input', function() {
+    clearTimeout(customerSearchTimeout);
+    const q = $(this).val().trim();
+    if (q.length < 2) { $('#customer-dropdown').addClass('hidden'); return; }
+    customerSearchTimeout = setTimeout(() => {
+        $.get('{{ route("customers.search") }}', { q }, function(customers) {
+            let html = '';
+            if (!customers.length) {
+                html = `<div class="p-3 text-xs text-gray-400">No customer found.
+                    <button onclick="openQuickAdd('${q.replace(/'/g,"\\'")}')" class="text-gray-900 hover:underline ml-1">+ Add new</button>
+                </div>`;
+            } else {
+                html = customers.map(c => `
+                    <div onclick="selectCustomer(${c.id},'${c.name.replace(/'/g,"\\'")}','${c.phone||''}')"
+                        class="px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b border-gray-50 last:border-0">
+                        <p class="font-medium text-gray-800">${c.name}</p>
+                        <p class="text-xs text-gray-400">${c.phone||c.email||''}</p>
+                    </div>`).join('');
+                html += `<div onclick="openQuickAdd('')" class="px-3 py-2 hover:bg-gray-50 cursor-pointer text-xs text-gray-900 border-t border-gray-100">
+                    <i class="fas fa-plus mr-1"></i> Add new customer
+                </div>`;
+            }
+            $('#customer-dropdown').html(html).removeClass('hidden');
+        });
+    }, 300);
+});
+
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#customer-wrap, #customer-dropdown').length)
+        $('#customer-dropdown').addClass('hidden');
+});
+
+function selectCustomer(id, name, phone) {
+    selectedCustomer = { id, name, phone };
+    $('#customer-search').val('');
+    $('#customer-dropdown').addClass('hidden');
+    $('#sel-name').text(name);
+    $('#sel-phone').text(phone || '');
+    $('#customer-selected').removeClass('hidden');
+    $('#selected-customer-id').val(id);
+    updateRafflePreview();
+}
+
+function clearCustomer() {
+    selectedCustomer = null;
+    $('#selected-customer-id').val('');
+    $('#customer-selected').addClass('hidden');
+    $('#customer-search').val('');
+    $('#raffle-preview').addClass('hidden');
+}
+
+// ── Quick Add Customer ──────────────────────────────────────
+function openQuickAdd(prefill) {
+    $('#qa-name').val(prefill || '');
+    $('#qa-phone').val('');
+    $('#qa-email').val('');
+    $('#qa-error').addClass('hidden').text('');
+    $('#customer-dropdown').addClass('hidden');
+    $('#quick-add-modal').removeClass('hidden');
+    setTimeout(() => $('#qa-name').focus(), 100);
+}
+
+function saveQuickCustomer() {
+    const name  = $('#qa-name').val().trim();
+    const phone = $('#qa-phone').val().trim();
+    const email = $('#qa-email').val().trim();
+    if (!name) {
+        $('#qa-error').text('Name is required.').removeClass('hidden'); return;
+    }
+    $('#qa-error').addClass('hidden');
+    $.ajax({
+        url: '{{ route("customers.quick") }}', method: 'POST',
+        data: { name, phone, email },
+        success: function(res) {
+            selectCustomer(res.customer.id, res.customer.name, res.customer.phone || '');
+            $('#quick-add-modal').addClass('hidden');
+            showToast('Customer "' + res.customer.name + '" added and selected!');
+        },
+        error: function(xhr) {
+            const msg = xhr.responseJSON?.errors
+                ? Object.values(xhr.responseJSON.errors).flat().join(' ')
+                : (xhr.responseJSON?.message || 'Error saving customer');
+            $('#qa-error').text(msg).removeClass('hidden');
+        }
+    });
+}
+
+// ── Raffle preview ──────────────────────────────────────────
+function updateRafflePreview() {
+    if (!RAFFLE_ENABLED || !selectedCustomer) { $('#raffle-preview').addClass('hidden'); return; }
+    const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+    const discount = parseFloat($('#discount').val()) || 0;
+    const tax      = parseFloat($('#tax').val()) || 0;
+    const total    = subtotal - discount + tax;
+    const entries  = Math.floor(total / RAFFLE_PER_ENTRY);
+    if (entries > 0) {
+        $('#raffle-entries-count').text(entries + ' raffle ' + (entries === 1 ? 'entry' : 'entries'));
+        $('#raffle-preview').removeClass('hidden');
+    } else {
+        $('#raffle-preview').addClass('hidden');
+    }
+}
+
+// ── Cart ────────────────────────────────────────────────────
+function selectProduct(product) {
+    if (product.variants.length === 1) { addToCart(product, product.variants[0]); return; }
+    $('#modal-product-name').text(product.name);
+    let html = '';
+    product.variants.forEach(v => {
+        const disabled = v.stock_quantity === 0;
+        html += `
+        <button onclick="addToCart(${JSON.stringify(product).replace(/"/g,'&quot;')},${JSON.stringify(v).replace(/"/g,'&quot;')}); closeVariantModal();"
+            class="w-full flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 hover:border-gray-900 transition text-sm ${disabled?'opacity-50 cursor-not-allowed':''}"
+            ${disabled?'disabled':''}>
+            <span class="font-medium">${v.size} / ${v.color}</span>
+            <div class="text-right">
+                <span class="font-bold text-gray-900">₱${parseFloat(v.price).toFixed(2)}</span>
+                <span class="text-xs text-gray-400 ml-2">${v.stock_quantity} left</span>
+            </div>
+        </button>`;
+    });
+    $('#variant-options').html(html);
+    $('#variant-modal').removeClass('hidden');
+}
+
+function closeVariantModal() { $('#variant-modal').addClass('hidden'); }
+
+function addToCart(product, variant) {
+    const existing = cart.find(i => i.variant_id === variant.id);
+    if (existing) {
+        if (existing.quantity >= variant.stock_quantity) { showToast('Not enough stock!','error'); return; }
+        existing.quantity++;
+        existing.subtotal = existing.quantity * existing.unit_price;
+    } else {
+        cart.push({ variant_id: variant.id, product_name: product.name, variant_info: variant.variant_info,
+            unit_price: parseFloat(variant.price), quantity: 1, subtotal: parseFloat(variant.price), max_stock: variant.stock_quantity });
+    }
+    renderCart();
+    showToast(`${product.name} (${variant.variant_info}) added`);
+}
+
+function renderCart() {
+    if (!cart.length) {
+        $('#cart-items').html('<div class="text-center py-12 text-gray-400"><i class="fas fa-shopping-cart text-4xl mb-3"></i><p class="text-sm">Cart is empty</p></div>');
+        $('#cart-count').text(0);
+        $('#checkout-btn').prop('disabled', true);
+        updateTotals();
+        return;
+    }
+    let html = '';
+    cart.forEach((item, idx) => {
+        html += `
+        <div class="bg-gray-50 rounded-lg p-3">
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium text-gray-800 text-sm truncate">${item.product_name}</p>
+                    <p class="text-xs text-gray-400">${item.variant_info}</p>
+                </div>
+                <button onclick="removeFromCart(${idx})" class="text-gray-500 hover:text-gray-700 ml-2 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <button onclick="updateQty(${idx},-1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded-full text-sm font-bold transition">-</button>
+                    <span class="w-8 text-center font-semibold text-sm">${item.quantity}</span>
+                    <button onclick="updateQty(${idx},1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded-full text-sm font-bold transition">+</button>
+                </div>
+                <span class="font-bold text-gray-900 text-sm">₱${item.subtotal.toFixed(2)}</span>
+            </div>
+        </div>`;
+    });
+    $('#cart-items').html(html);
+    $('#cart-count').text(cart.reduce((s, i) => s + i.quantity, 0));
+    $('#checkout-btn').prop('disabled', false);
+    updateTotals();
+}
+
+function updateQty(idx, delta) {
+    cart[idx].quantity += delta;
+    if (cart[idx].quantity <= 0) { cart.splice(idx, 1); }
+    else if (cart[idx].quantity > cart[idx].max_stock) {
+        cart[idx].quantity = cart[idx].max_stock; showToast('Max stock reached!','warning');
+    } else { cart[idx].subtotal = cart[idx].quantity * cart[idx].unit_price; }
+    renderCart();
+}
+
+function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
+function clearCart() { cart = []; renderCart(); }
+
+function updateTotals() {
+    const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+    const discount = parseFloat($('#discount').val()) || 0;
+    let tax = 0;
+    if (TAX_ENABLED && !TAX_INCLUSIVE) {
+        tax = (subtotal - discount) * (TAX_RATE / 100);
+        $('#tax').val(tax.toFixed(2));
+        if ($('#tax-display').length) $('#tax-display').text('₱' + tax.toFixed(2));
+    }
+    const total = subtotal - discount + tax;
+    $('#subtotal').text('₱' + subtotal.toFixed(2));
+    $('#total').text('₱' + total.toFixed(2));
+    updateRafflePreview();
+}
+
+$('#discount').on('input', function() {
+    if (MAX_DISCOUNT > 0 && parseFloat(this.value) > MAX_DISCOUNT) {
+        this.value = MAX_DISCOUNT; showToast('Maximum discount is ₱' + MAX_DISCOUNT, 'warning');
+    }
+    updateTotals();
+});
+
+// ── Checkout ────────────────────────────────────────────────
+function openCheckout() {
+    if (!cart.length) return;
+    const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+    const discount = parseFloat($('#discount').val()) || 0;
+    const tax      = parseFloat($('#tax').val()) || 0;
+    const total    = subtotal - discount + tax;
+    $('#co-subtotal').text('₱' + subtotal.toFixed(2));
+    $('#co-discount').text('₱' + discount.toFixed(2));
+    $('#co-tax').text('₱' + tax.toFixed(2));
+    $('#co-total').text('₱' + total.toFixed(2));
+
+    if (selectedCustomer) {
+        $('#co-customer').text(selectedCustomer.name + (selectedCustomer.phone ? ' · ' + selectedCustomer.phone : ''));
+        $('#co-customer-row').removeClass('hidden');
+    } else {
+        $('#co-customer-row').addClass('hidden');
+    }
+
+    const entries = Math.floor(total / RAFFLE_PER_ENTRY);
+    if (RAFFLE_ENABLED && selectedCustomer && entries > 0) {
+        $('#co-raffle').text('🎟 ' + entries + ' raffle ' + (entries === 1 ? 'entry' : 'entries') + ' will be generated');
+        $('#co-raffle-row').removeClass('hidden');
+    } else {
+        $('#co-raffle-row').addClass('hidden');
+    }
+
+    $('#amount-paid').val('');
+    $('#change-display').text('₱0.00');
+    $('#checkout-modal').removeClass('hidden');
+    setTimeout(() => $('#amount-paid').focus(), 100);
+}
+
+function closeCheckout() { $('#checkout-modal').addClass('hidden'); }
+function setAmount(val) { $('#amount-paid').val(val); calcChange(); }
+
+function calcChange() {
+    const total  = parseFloat($('#co-total').text().replace('₱','')) || 0;
+    const paid   = parseFloat($('#amount-paid').val()) || 0;
+    const change = paid - total;
+    $('#change-display').text('₱' + Math.max(0, change).toFixed(2));
+    $('#change-display').toggleClass('text-gray-700', change < 0).toggleClass('text-gray-700', change >= 0);
+}
+
+function processCheckout() {
+    const total = parseFloat($('#co-total').text().replace('₱','')) || 0;
+    const paid  = parseFloat($('#amount-paid').val()) || 0;
+    if (paid < total) { showToast('Amount paid is less than total!','error'); return; }
+
+    $('#process-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Processing...');
+
+    $.ajax({
+        url: '{{ route("pos.checkout") }}',
+        method: 'POST',
+        contentType: 'application/json',
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        data: JSON.stringify({
+            items:          cart.map(i => ({ variant_id: i.variant_id, quantity: i.quantity })),
+            discount:       parseFloat($('#discount').val()) || 0,
+            tax:            parseFloat($('#tax').val()) || 0,
+            amount_paid:    paid,
+            customer_id:    selectedCustomer?.id || null,
+            customer_name:  selectedCustomer?.name || null,
+            customer_phone: selectedCustomer?.phone || null,
+        }),
+        success: function(res) {
+            closeCheckout();
+            $('#receipt-txn').text('Transaction: ' + res.transaction_number);
+            $('#receipt-total').text('₱' + total.toFixed(2));
+            $('#receipt-paid').text('₱' + paid.toFixed(2));
+            $('#receipt-change').text('₱' + parseFloat(res.change).toFixed(2));
+            $('#print-receipt-btn').attr('href', '/pos/receipt/' + res.transaction_id);
+            $('#view-txn-btn').attr('href', '/transactions/' + res.transaction_id);
+
+            if (res.raffle_entries > 0) {
+                $('#receipt-raffle').html(`
+                    <div class="mt-2 bg-gray-900 rounded-xl p-4 text-center text-white">
+                        <p class="text-xs font-medium opacity-80 mb-1">🎟 Raffle Tickets Earned!</p>
+                        <p class="text-3xl font-bold">${res.raffle_entries} ${res.raffle_entries===1?'Entry':'Entries'}</p>
+                        <p class="text-sm font-mono opacity-70 mt-1 tracking-widest">${res.raffle_tickets}</p>
+                    </div>`);
+            } else {
+                $('#receipt-raffle').html('');
+            }
+
+            $('#receipt-modal').removeClass('hidden');
+        },
+        error: function(xhr) {
+            showToast(xhr.responseJSON?.message || 'Checkout failed.', 'error');
+        },
+        complete: function() {
+            $('#process-btn').prop('disabled', false).html('<i class="fas fa-check mr-2"></i> Process Payment');
+        }
+    });
+}
+
+function newTransaction() {
+    cart = [];
+    selectedCustomer = null;
+    $('#discount').val(0); $('#tax').val(0);
+    $('#selected-customer-id').val('');
+    $('#customer-selected').addClass('hidden');
+    $('#customer-search').val('');
+    $('#raffle-preview').addClass('hidden');
+    renderCart();
+    $('#receipt-modal').addClass('hidden');
+    $('#search-input').val('').focus();
+    searchProducts();
+}
+
+$(document).on('keydown', function(e) {
+    if (e.key === 'F2')  { e.preventDefault(); $('#search-input').focus(); }
+    if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
+    if (e.key === 'F12') { e.preventDefault(); if (cart.length) openCheckout(); }
+    if (e.key === 'Escape') { closeVariantModal(); closeCheckout(); $('#customer-dropdown, #quick-add-modal').addClass('hidden'); }
+});
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+        document.exitFullscreen().catch(() => {});
+    }
+}
+
+document.addEventListener('fullscreenchange', function() {
+    const icon = document.getElementById('fullscreen-icon');
+    const sidebar = document.querySelector('aside');
+    if (document.fullscreenElement) {
+        icon.classList.replace('fa-expand', 'fa-compress');
+        sidebar.classList.add('hidden');
+    } else {
+        icon.classList.replace('fa-compress', 'fa-expand');
+        sidebar.classList.remove('hidden');
+    }
+});
+
+searchProducts();
+</script>
+@endpush
