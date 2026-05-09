@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Transaction ' . $transaction->transaction_number)
+@push('styles')
+<style>.pos-modal:not(.hidden) { display: flex; }</style>
+@endpush
 @section('content')
 <div class="space-y-4 max-w-3xl">
     <div class="flex items-center gap-3">
@@ -68,17 +71,19 @@
             class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm transition">
             <i class="fas fa-print mr-1"></i> Print Receipt
         </a>
+        @role('admin')
         @if($transaction->status === 'completed')
         <button onclick="openVoid({{ $transaction->id }}, '{{ $transaction->transaction_number }}')"
             class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition">
             <i class="fas fa-ban mr-1"></i> Void Transaction
         </button>
         @endif
+        @endrole
     </div>
 </div>
 
 <!-- Void Modal -->
-<div id="void-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+<div id="void-modal" class="fixed inset-0 bg-black/50 z-40 hidden items-center justify-center pos-modal">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <h3 class="font-bold text-gray-800 mb-1">Void Transaction</h3>
         <p class="text-xs text-gray-500 mb-3" id="void-txn-num"></p>

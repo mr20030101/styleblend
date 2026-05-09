@@ -160,6 +160,7 @@
 
 <script>
 const storeName   = '{{ \App\Models\Setting::get("store_name", "Track Buddy") }}';
+const CURRENCY    = '{{ $currencySymbol }}';
 const allProducts = @json($products);
 const SIZES = { '50x30': [50,30], '60x40': [60,40], '40x25': [40,25] };
 
@@ -204,7 +205,7 @@ function makeLabel(productName, variant, wMm, hMm) {
     html += `<div class="lbl-product">${productName}</div>`;
     if (showVariant) html += `<div class="lbl-variant">${variant.size} / ${variant.color}</div>`;
     html += `<svg class="barcode-svg" data-value="${variant.barcode}"></svg>`;
-    if (showPrice)   html += `<div class="lbl-price">₱${parseFloat(variant.price).toFixed(2)}</div>`;
+    if (showPrice)   html += `<div class="lbl-price">${CURRENCY}${parseFloat(variant.price).toFixed(2)}</div>`;
 
     div.innerHTML = html;
     return div;

@@ -75,24 +75,24 @@
         <div class="row">
             <span class="item-name" style="padding-left:8px;">{{ $item->variant_info }}</span>
             <span class="item-qty">{{ $item->quantity }}</span>
-            <span class="item-price">₱{{ number_format($item->subtotal, 2) }}</span>
+            <span class="item-price">{{ $currencySymbol }}{{ number_format($item->subtotal, 2) }}</span>
         </div>
-        <div style="text-align:right;">@ ₱{{ number_format($item->unit_price, 2) }} each</div>
+        <div style="text-align:right;">@ {{ $currencySymbol }}{{ number_format($item->unit_price, 2) }} each</div>
     </div>
     @endforeach
 
     <div class="divider"></div>
-    <div class="row"><span>Subtotal:</span><span>₱{{ number_format($transaction->subtotal, 2) }}</span></div>
+    <div class="row"><span>Subtotal:</span><span>{{ $currencySymbol }}{{ number_format($transaction->subtotal, 2) }}</span></div>
     @if($transaction->discount > 0)
-    <div class="row"><span>Discount:</span><span>-₱{{ number_format($transaction->discount, 2) }}</span></div>
+    <div class="row"><span>Discount:</span><span>-{{ $currencySymbol }}{{ number_format($transaction->discount, 2) }}</span></div>
     @endif
     @if($transaction->tax > 0)
-    <div class="row"><span>+{{ $taxLabel }}:</span><span>+₱{{ number_format($transaction->tax, 2) }}</span></div>
+    <div class="row"><span>+{{ $taxLabel }}:</span><span>+{{ $currencySymbol }}{{ number_format($transaction->tax, 2) }}</span></div>
     @endif
     <div class="divider"></div>
-    <div class="row total-row"><span>TOTAL:</span><span>₱{{ number_format($transaction->total, 2) }}</span></div>
-    <div class="row"><span>Cash Paid:</span><span>₱{{ number_format($transaction->amount_paid, 2) }}</span></div>
-    <div class="row bold"><span>Change:</span><span>₱{{ number_format($transaction->change_amount, 2) }}</span></div>
+    <div class="row total-row"><span>TOTAL:</span><span>{{ $currencySymbol }}{{ number_format($transaction->total, 2) }}</span></div>
+    <div class="row"><span>Cash Paid:</span><span>{{ $currencySymbol }}{{ number_format($transaction->amount_paid, 2) }}</span></div>
+    <div class="row bold"><span>Change:</span><span>{{ $currencySymbol }}{{ number_format($transaction->change_amount, 2) }}</span></div>
 
     <div class="divider"></div>
     <div class="center" style="margin-top:8px;">{{ $storeFooter }}</div>

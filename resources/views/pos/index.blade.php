@@ -100,13 +100,13 @@
         <div class="border-t border-gray-100 p-4 space-y-3">
             <div class="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span id="subtotal">₱0.00</span>
+                <span id="subtotal">{{ $currencySymbol }}0.00</span>
             </div>
             <div class="flex justify-between text-sm text-gray-600 items-center">
                 <span>Discount</span>
                 @if($discountEnabled)
                 <div class="flex items-center gap-1">
-                    <span class="text-xs font-medium text-gray-500">₱</span>
+                    <span class="text-xs font-medium text-gray-500">{{ $currencySymbol }}</span>
                     <input type="number" id="discount" value="0" min="0" step="0.01"
                         {{ $maxDiscount > 0 ? 'max="'.$maxDiscount.'"' : '' }}
                         class="w-24 border border-gray-300 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-1 focus:ring-brand">
@@ -119,7 +119,7 @@
             <div class="flex justify-between text-sm text-gray-600 items-center">
                 <span>{{ $taxLabel }} @if($taxEnabled)({{ $taxRate }}%)@endif</span>
                 @if($taxEnabled && !$taxInclusive)
-                <span id="tax-display" class="text-sm text-gray-600">₱ 0.00</span>
+                <span id="tax-display" class="text-sm text-gray-600">{{ $currencySymbol }} 0.00</span>
                 <input type="hidden" id="tax" value="0">
                 @else
                 <span class="text-gray-400 text-xs">{{ $taxInclusive ? 'Included in price' : 'Disabled' }}</span>
@@ -128,7 +128,7 @@
             </div>
             <div class="flex justify-between font-bold text-lg border-t pt-3">
                 <span>Total</span>
-                <span id="total" class="text-gray-900">₱0.00</span>
+                <span id="total" class="text-gray-900">{{ $currencySymbol }}0.00</span>
             </div>
 
             <button id="checkout-btn" onclick="openCheckout()"
@@ -172,17 +172,17 @@
                 <span id="co-customer" class="text-gray-800 font-medium"></span>
             </div>
             <div class="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                <div class="flex justify-between"><span>Subtotal</span><span id="co-subtotal">₱0.00</span></div>
-                <div class="flex justify-between"><span>Discount</span><span id="co-discount">₱0.00</span></div>
-                <div class="flex justify-between"><span>Tax</span><span id="co-tax">₱0.00</span></div>
-                <div class="flex justify-between font-bold text-base border-t pt-2"><span>Total</span><span id="co-total" class="text-gray-900">₱0.00</span></div>
+                <div class="flex justify-between"><span>Subtotal</span><span id="co-subtotal">{{ $currencySymbol }}0.00</span></div>
+                <div class="flex justify-between"><span>Discount</span><span id="co-discount">{{ $currencySymbol }}0.00</span></div>
+                <div class="flex justify-between"><span>Tax</span><span id="co-tax">{{ $currencySymbol }}0.00</span></div>
+                <div class="flex justify-between font-bold text-base border-t pt-2"><span>Total</span><span id="co-total" class="text-gray-900">{{ $currencySymbol }}0.00</span></div>
             </div>
             <!-- Raffle preview -->
             <div id="co-raffle-row" class="hidden bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-800 font-medium text-center">
                 <span id="co-raffle"></span>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid (₱)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid ({{ $currencySymbol }})</label>
                 <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand"
                     oninput="calcChange()">
@@ -194,7 +194,7 @@
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex justify-between items-center">
                 <span class="font-medium text-gray-700">Change</span>
-                <span id="change-display" class="text-2xl font-bold text-gray-700">₱0.00</span>
+                <span id="change-display" class="text-2xl font-bold text-gray-700">{{ $currencySymbol }}0.00</span>
             </div>
             <button id="process-btn" onclick="processCheckout()"
                 class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 rounded-lg transition">
@@ -305,6 +305,7 @@ const DISCOUNT_ENABLED = {{ $discountEnabled ? 'true' : 'false' }};
 const MAX_DISCOUNT     = {{ $maxDiscount }};
 const RAFFLE_ENABLED   = {{ \App\Models\Setting::get('raffle_enabled','1') == '1' ? 'true' : 'false' }} && {{ $activeRaffle ? 'true' : 'false' }};
 const RAFFLE_PER_ENTRY = {{ (float)\App\Models\Setting::get('raffle_per_entry', 300) }};
+const CURRENCY         = '{{ $currencySymbol }}';
 
 let cart = [];
 let searchTimeout, customerSearchTimeout;
@@ -399,7 +400,7 @@ function renderProducts(products) {
                 <p class="font-semibold text-gray-800 text-sm truncate">${p.name}</p>
                 <p class="text-xs text-gray-400">${p.category}</p>
                 <div class="flex justify-between items-center mt-1">
-                    <span class="text-gray-900 font-bold text-sm">₱${parseFloat(minPrice).toFixed(2)}</span>
+                    <span class="text-gray-900 font-bold text-sm">${CURRENCY}${parseFloat(minPrice).toFixed(2)}</span>
                     <span class="text-xs ${totalStock <= 5 ? 'text-gray-600' : 'text-gray-400'}">${totalStock} in stock</span>
                 </div>
             </div>
@@ -527,7 +528,7 @@ function selectProduct(product) {
             ${disabled?'disabled':''}>
             <span class="font-medium">${v.size} / ${v.color}</span>
             <div class="text-right">
-                <span class="font-bold text-gray-900">₱${parseFloat(v.price).toFixed(2)}</span>
+                <span class="font-bold text-gray-900">${CURRENCY}${parseFloat(v.price).toFixed(2)}</span>
                 <span class="text-xs text-gray-400 ml-2">${v.stock_quantity} left</span>
             </div>
         </button>`;
@@ -579,7 +580,7 @@ function renderCart() {
                     <span class="w-8 text-center font-semibold text-sm">${item.quantity}</span>
                     <button onclick="updateQty(${idx},1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded-full text-sm font-bold transition">+</button>
                 </div>
-                <span class="font-bold text-gray-900 text-sm">₱${item.subtotal.toFixed(2)}</span>
+                <span class="font-bold text-gray-900 text-sm">${CURRENCY}${item.subtotal.toFixed(2)}</span>
             </div>
         </div>`;
     });
@@ -612,17 +613,17 @@ function updateTotals() {
     if (TAX_ENABLED && !TAX_INCLUSIVE) {
         tax = (subtotal - discount) * (TAX_RATE / 100);
         $('#tax').val(tax.toFixed(2));
-        if ($('#tax-display').length) $('#tax-display').text('₱' + tax.toFixed(2));
+        if ($('#tax-display').length) $('#tax-display').text(CURRENCY +tax.toFixed(2));
     }
     const total = subtotal - discount + tax;
-    $('#subtotal').text('₱' + subtotal.toFixed(2));
-    $('#total').text('₱' + total.toFixed(2));
+    $('#subtotal').text(CURRENCY +subtotal.toFixed(2));
+    $('#total').text(CURRENCY +total.toFixed(2));
     updateRafflePreview();
 }
 
 $('#discount').on('input', function() {
     if (MAX_DISCOUNT > 0 && parseFloat(this.value) > MAX_DISCOUNT) {
-        this.value = MAX_DISCOUNT; showToast('Maximum discount is ₱' + MAX_DISCOUNT, 'warning');
+        this.value = MAX_DISCOUNT; showToast('Maximum discount is ' + CURRENCY + MAX_DISCOUNT, 'warning');
     }
     updateTotals();
     saveCart();
@@ -635,10 +636,10 @@ function openCheckout() {
     const discount = parseFloat($('#discount').val()) || 0;
     const tax      = parseFloat($('#tax').val()) || 0;
     const total    = subtotal - discount + tax;
-    $('#co-subtotal').text('₱' + subtotal.toFixed(2));
-    $('#co-discount').text('₱' + discount.toFixed(2));
-    $('#co-tax').text('₱' + tax.toFixed(2));
-    $('#co-total').text('₱' + total.toFixed(2));
+    $('#co-subtotal').text(CURRENCY +subtotal.toFixed(2));
+    $('#co-discount').text(CURRENCY +discount.toFixed(2));
+    $('#co-tax').text(CURRENCY +tax.toFixed(2));
+    $('#co-total').text(CURRENCY +total.toFixed(2));
 
     if (selectedCustomer) {
         $('#co-customer').text(selectedCustomer.name + (selectedCustomer.phone ? ' · ' + selectedCustomer.phone : ''));
@@ -656,7 +657,7 @@ function openCheckout() {
     }
 
     $('#amount-paid').val('');
-    $('#change-display').text('₱0.00');
+    $('#change-display').text(CURRENCY + '0.00');
     $('#checkout-modal').removeClass('hidden');
     setTimeout(() => $('#amount-paid').focus(), 100);
 }
@@ -665,15 +666,15 @@ function closeCheckout() { $('#checkout-modal').addClass('hidden'); }
 function setAmount(val) { $('#amount-paid').val(val); calcChange(); }
 
 function calcChange() {
-    const total  = parseFloat($('#co-total').text().replace('₱','')) || 0;
+    const total  = parseFloat($('#co-total').text().replace(CURRENCY,'')) || 0;
     const paid   = parseFloat($('#amount-paid').val()) || 0;
     const change = paid - total;
-    $('#change-display').text('₱' + Math.max(0, change).toFixed(2));
+    $('#change-display').text(CURRENCY +Math.max(0, change).toFixed(2));
     $('#change-display').toggleClass('text-gray-700', change < 0).toggleClass('text-gray-700', change >= 0);
 }
 
 function processCheckout() {
-    const total = parseFloat($('#co-total').text().replace('₱','')) || 0;
+    const total = parseFloat($('#co-total').text().replace(CURRENCY,'')) || 0;
     const paid  = parseFloat($('#amount-paid').val()) || 0;
     if (paid < total) { showToast('Amount paid is less than total!','error'); return; }
 
@@ -697,9 +698,9 @@ function processCheckout() {
             localStorage.removeItem(CART_STORAGE_KEY);
             closeCheckout();
             $('#receipt-txn').text('Transaction: ' + res.transaction_number);
-            $('#receipt-total').text('₱' + total.toFixed(2));
-            $('#receipt-paid').text('₱' + paid.toFixed(2));
-            $('#receipt-change').text('₱' + parseFloat(res.change).toFixed(2));
+            $('#receipt-total').text(CURRENCY +total.toFixed(2));
+            $('#receipt-paid').text(CURRENCY +paid.toFixed(2));
+            $('#receipt-change').text(CURRENCY +parseFloat(res.change).toFixed(2));
             $('#print-receipt-btn').data('receipt-url', '/pos/receipt/' + res.transaction_id);
             $('#view-txn-btn').attr('href', '/transactions/' + res.transaction_id);
 
@@ -738,13 +739,13 @@ function openReceipt() {
 function newTransaction() {
     cart = [];
     selectedCustomer = null;
-    localStorage.removeItem(CART_STORAGE_KEY);
     $('#discount').val(0); $('#tax').val(0);
     $('#selected-customer-id').val('');
     $('#customer-selected').addClass('hidden');
     $('#customer-search').val('');
     $('#raffle-preview').addClass('hidden');
     renderCart();
+    localStorage.removeItem(CART_STORAGE_KEY);
     $('#receipt-modal').addClass('hidden');
     $('#search-input').val('').focus();
     searchProducts();

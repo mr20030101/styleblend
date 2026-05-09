@@ -313,8 +313,9 @@ class PosController extends Controller
         $storeAddress = \App\Models\Setting::get('store_address', '');
         $storePhone   = \App\Models\Setting::get('store_phone', '');
         $storeFooter  = \App\Models\Setting::get('store_footer', 'Thank you for shopping with us!');
-        $taxLabel     = \App\Models\Setting::get('tax_label', 'VAT');
-        $storeLogo    = \App\Models\Setting::get('store_logo', '');
-        return view('pos.receipt', compact('transaction', 'storeName', 'storeAddress', 'storePhone', 'storeFooter', 'taxLabel', 'storeLogo'));
+        $taxLabel       = \App\Models\Setting::get('tax_label', 'VAT');
+        $storeLogo      = \App\Models\Setting::get('store_logo', '');
+        $currencySymbol = \App\Models\Setting::get('currency_symbol', '₱');
+        return view('pos.receipt', compact('transaction', 'storeName', 'storeAddress', 'storePhone', 'storeFooter', 'taxLabel', 'storeLogo', 'currencySymbol'));
     }
 }

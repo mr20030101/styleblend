@@ -147,11 +147,11 @@
                 </label>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Amount per Raffle Entry (₱)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Amount per Raffle Entry ({{ $settings['currency_symbol'] ?? '₱' }})</label>
                 <input type="number" name="raffle_per_entry" value="{{ $settings['raffle_per_entry'] ?? '300' }}"
                     min="1" step="1"
                     class="w-48 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
-                <p class="text-xs text-gray-400 mt-1">e.g. ₱300 spend = 1 raffle entry, ₱600 = 2 entries</p>
+                <p class="text-xs text-gray-400 mt-1">e.g. {{ $settings['currency_symbol'] ?? '₱' }}300 spend = 1 raffle entry, {{ $settings['currency_symbol'] ?? '₱' }}600 = 2 entries</p>
             </div>
         </div>
 
@@ -172,7 +172,7 @@
                 </label>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Maximum Discount Amount (₱)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Maximum Discount Amount ({{ $settings['currency_symbol'] ?? '₱' }})</label>
                 <input type="number" name="max_discount" value="{{ $settings['max_discount'] ?? '100' }}"
                     min="0" step="0.01"
                     class="w-48 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">

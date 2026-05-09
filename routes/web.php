@@ -32,6 +32,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customers/search', [\App\Http\Controllers\CustomerController::class, 'search'])->name('customers.search');
     Route::post('/customers/quick', [\App\Http\Controllers\CustomerController::class, 'store'])->name('customers.quick');
 
+    // Transactions — read access for all authenticated users (cashiers can view & reprint)
+    Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{transaction}', [\App\Http\Controllers\TransactionController::class, 'show'])->name('transactions.show');
+
     // Admin routes
     Route::middleware('role:admin')->group(function () {
 
@@ -83,9 +87,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-        // Transactions (void)
-        Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
-        Route::get('/transactions/{transaction}', [\App\Http\Controllers\TransactionController::class, 'show'])->name('transactions.show');
+        // Transactions (void — admin only)
         Route::post('/transactions/{transaction}/void', [\App\Http\Controllers\TransactionController::class, 'void'])->name('transactions.void');
 
         // Suppliers

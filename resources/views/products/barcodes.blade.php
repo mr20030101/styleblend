@@ -129,7 +129,7 @@
                             value="{{ $v->id }}" checked onchange="renderLabels()">
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-800">{{ $v->size }} / {{ $v->color }}</p>
-                            <p class="text-xs text-gray-400">₱{{ number_format($v->price, 2) }}</p>
+                            <p class="text-xs text-gray-400">{{ $currencySymbol }}{{ number_format($v->price, 2) }}</p>
                         </div>
                     </label>
                     @endforeach
@@ -157,6 +157,7 @@
 {{-- Data --}}
 <script>
 const storeName  = '{{ \App\Models\Setting::get("store_name", "Track Buddy") }}';
+const CURRENCY   = '{{ $currencySymbol }}';
 const variants   = @json($variantsData);
 const productName = '{{ addslashes($product->name) }}';
 
@@ -196,7 +197,7 @@ function makeLabel(variant, wMm, hMm) {
     html += `<div class="lbl-product">${productName}</div>`;
     if (showVariant) html += `<div class="lbl-variant">${variant.size} / ${variant.color}</div>`;
     html += `<svg class="barcode-svg" data-value="${variant.barcode}"></svg>`;
-    if (showPrice)   html += `<div class="lbl-price">₱${parseFloat(variant.price).toFixed(2)}</div>`;
+    if (showPrice)   html += `<div class="lbl-price">${CURRENCY}${parseFloat(variant.price).toFixed(2)}</div>`;
 
     div.innerHTML = html;
     return div;

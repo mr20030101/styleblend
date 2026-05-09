@@ -113,6 +113,11 @@
                 <i class="fas fa-cash-register w-5 shrink-0 text-center"></i>
                 <span class="nav-label">POS</span>
             </a>
+            <a href="{{ route('transactions.index') }}" title="Transactions"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition {{ request()->routeIs('transactions.*') ? 'bg-white/10' : '' }}">
+                <i class="fas fa-receipt w-5 shrink-0 text-center"></i>
+                <span class="nav-label">Transactions</span>
+            </a>
             @role('admin')
             <a href="{{ route('products.index') }}" title="Products"
                 class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition {{ request()->routeIs('products.*') ? 'bg-white/10' : '' }}">
@@ -134,12 +139,6 @@
                 <i class="fas fa-boxes w-5 shrink-0 text-center"></i>
                 <span class="nav-label">Inventory</span>
             </a>
-            <a href="{{ route('transactions.index') }}" title="Transactions"
-                class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition {{ request()->routeIs('transactions.*') ? 'bg-white/10' : '' }}">
-                <i class="fas fa-receipt w-5 shrink-0 text-center"></i>
-                <span class="nav-label">Transactions</span>
-            </a>
-
             <div class="pt-2">
                 <p class="nav-section text-xs text-white/30 uppercase tracking-wider px-3 mb-1">Reports</p>
                 <a href="{{ route('reports.sales') }}" title="Sales Report"

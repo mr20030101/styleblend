@@ -88,7 +88,8 @@ class ProductController extends Controller
             ];
         })->values();
 
-        return view('products.barcodes', compact('product', 'variantsData'));
+        $currencySymbol = \App\Models\Setting::get('currency_symbol', '₱');
+        return view('products.barcodes', compact('product', 'variantsData', 'currencySymbol'));
     }
 
     public function barcodesBatch()
@@ -115,7 +116,8 @@ class ProductController extends Controller
                 ];
             });
 
-        return view('products.barcodes_batch', compact('products'));
+        $currencySymbol = \App\Models\Setting::get('currency_symbol', '₱');
+        return view('products.barcodes_batch', compact('products', 'currencySymbol'));
     }
 
     public function edit(Product $product)
