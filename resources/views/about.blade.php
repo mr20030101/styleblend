@@ -32,18 +32,32 @@
         </p>
     </div>
 
-    {{-- Developer --}}
+    {{-- Team --}}
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Developer</h2>
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                 style="background:linear-gradient(135deg,#1DB87A,#0F8A58);">
-                <span class="text-white font-bold text-lg" style="font-family:'Nunito',sans-serif;">SL</span>
+        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">The Team</h2>
+        <div class="space-y-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                     style="background:linear-gradient(135deg,#1DB87A,#0F8A58);">
+                    <span class="text-white font-bold text-lg" style="font-family:'Nunito',sans-serif;">SL</span>
+                </div>
+                <div>
+                    <p class="font-bold text-navy text-base" style="font-family:'Nunito',sans-serif;">Shean Louise Margallo</p>
+                    <p class="text-gray-500 text-sm">Lead Developer &amp; Designer</p>
+                    <p class="text-gray-400 text-xs mt-0.5">sheanlouisemargallo@gmail.com</p>
+                </div>
             </div>
-            <div>
-                <p class="font-bold text-navy text-base" style="font-family:'Nunito',sans-serif;">Shean Louise Margallo</p>
-                <p class="text-gray-500 text-sm">Lead Developer &amp; Designer</p>
-                <p class="text-gray-400 text-xs mt-0.5">sheanlouisemargallo@gmail.com</p>
+            <div class="border-t border-gray-100"></div>
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                     style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);">
+                    <span class="text-white font-bold text-lg" style="font-family:'Nunito',sans-serif;">JA</span>
+                </div>
+                <div>
+                    <p class="font-bold text-navy text-base" style="font-family:'Nunito',sans-serif;">Jay-Anne R. Tan</p>
+                    <p class="text-gray-500 text-sm">Product Owner &amp; Business Analyst</p>
+                    <p class="text-gray-400 text-xs mt-0.5">Defined system requirements &amp; feature direction</p>
+                </div>
             </div>
         </div>
     </div>
@@ -54,13 +68,13 @@
 
         <div class="flex gap-3">
             <div class="mt-0.5 w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-trademark text-xs" style="color:#1DB87A;"></i>
+                <i class="fas fa-tag text-xs" style="color:#1DB87A;"></i>
             </div>
             <div>
-                <p class="text-sm font-semibold text-gray-700">Trademark</p>
+                <p class="text-sm font-semibold text-gray-700">Name &amp; Branding</p>
                 <p class="text-sm text-gray-500 mt-0.5">
-                    <strong>TrackBuddy</strong>&#8482; is a trademark of Shean Louise Margallo.
-                    Unauthorized use of the name or logo is prohibited.
+                    <strong>TrackBuddy</strong> is the working name of this application, conceived, designed,
+                    and built by Shean Louise Margallo. The name is not currently registered as a trademark.
                 </p>
             </div>
         </div>
@@ -74,9 +88,9 @@
             <div>
                 <p class="text-sm font-semibold text-gray-700">Copyright</p>
                 <p class="text-sm text-gray-500 mt-0.5">
-                    &copy; {{ date('Y') }} Shean Louise Margallo. All rights reserved.
-                    This software and its source code are proprietary and may not be reproduced,
-                    distributed, or modified without prior written permission from the author.
+                    &copy; {{ date('Y') }} TrackBuddy. This is a proprietary internal system.
+                    Unauthorized copying, redistribution, or modification of this software
+                    is not permitted without written permission from the developer.
                 </p>
             </div>
         </div>
@@ -90,8 +104,9 @@
             <div>
                 <p class="text-sm font-semibold text-gray-700">License</p>
                 <p class="text-sm text-gray-500 mt-0.5">
-                    Proprietary software. Licensed for use by the purchasing business only.
-                    Not open-source. All third-party libraries used remain under their respective licenses.
+                    This software is intended for internal business use only and is not open-source.
+                    All third-party libraries and frameworks used in this system remain under
+                    their respective licenses.
                 </p>
             </div>
         </div>
@@ -112,7 +127,7 @@
 
     {{-- Footer note --}}
     <p class="text-center text-xs text-gray-400 pb-2">
-        TrackBuddy POS &mdash; Made with <span style="color:#1DB87A;">&hearts;</span> by Shean Louise Margallo &copy; {{ date('Y') }}
+        TrackBuddy POS &mdash; Designed &amp; built by Shean Louise Margallo &copy; {{ date('Y') }}
     </p>
 
 </div>
