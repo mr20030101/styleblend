@@ -2,7 +2,7 @@
 @section('title', 'Sales Report')
 @section('content')
 <div class="space-y-4">
-    <h2 class="text-2xl font-bold text-gray-800">Sales Report</h2>
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Sales Report</h2>
 
     <!-- Filters -->
     <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap items-end">
@@ -92,7 +92,7 @@
             <span>Expenses in Period</span>
             <span class="text-gray-500 font-normal text-sm">₱{{ number_format($summary['total_expenses'], 2) }}</span>
         </div>
-        <table class="w-full text-sm">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Title</th>
@@ -117,7 +117,8 @@
 
     <!-- Transactions Table -->
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Transaction #</th>

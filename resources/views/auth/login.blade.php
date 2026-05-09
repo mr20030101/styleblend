@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - {{ \App\Models\Setting::get('store_name', 'StyleBlend') }}</title>
+    <title>Login - {{ \App\Models\Setting::get('store_name', 'Track Buddy') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-sand min-h-screen flex items-center justify-center">
 <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
     <div class="text-center mb-8">
-        @php $logo = \App\Models\Setting::get('store_logo'); $name = \App\Models\Setting::get('store_name', 'StyleBlend'); @endphp
+        @php $logo = \App\Models\Setting::get('store_logo'); $name = \App\Models\Setting::get('store_name', 'Track Buddy'); @endphp
         @if($logo)
             <img src="{{ asset('storage/' . $logo) }}" alt="{{ $name }}"
                 class="h-16 w-auto mx-auto mb-3 object-contain">
         @else
-            <div class="w-16 h-16 bg-navy rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <span class="text-white font-bold text-xl">{{ strtoupper(substr($name, 0, 2)) }}</span>
-            </div>
+            {{-- TB logo mark --}}
+            <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#1DB87A 0%,#0F8A58 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:'Nunito',sans-serif;font-weight:900;font-size:28px;color:white;letter-spacing:-1px;">TB</div>
         @endif
-        <h1 class="text-2xl font-bold text-gray-800">{{ $name }}</h1>
-        <p class="text-gray-500 text-sm mt-1">Sign in to your account</p>
+        {{-- Wordmark --}}
+        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.3px;line-height:1;">
+            <span style="color:#1A2B3C;">Track</span><span style="color:#1DB87A;">Buddy</span>
+        </div>
+        <p class="text-gray-500 text-sm mt-2">Sign in to your account</p>
     </div>
 
     @if($errors->any())
@@ -51,11 +53,10 @@
         </button>
     </form>
 
-    <div class="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-500">
-        <p class="font-medium mb-1">Demo Accounts:</p>
-        <p>Admin: admin@pos.com / password</p>
-        <p>Cashier: cashier@pos.com / password</p>
-    </div>
+    <p class="text-center text-xs text-gray-400 mt-6">
+        Powered by <span style="font-family:'Nunito',sans-serif;font-weight:700;color:#1A2B3C;">Track</span><span style="font-family:'Nunito',sans-serif;font-weight:700;color:#1DB87A;">Buddy</span>
+    </p>
+
 </div>
 </body>
 </html>

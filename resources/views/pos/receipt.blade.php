@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <title>Receipt - {{ $transaction->transaction_number }}</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; font-size: 12px; width: 80mm; margin: 0 auto; padding: 10px; }
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; color: #000; }
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            width: 80mm;
+            margin: 0 auto;
+            padding: 10px;
+            color: #000;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
         .center { text-align: center; }
         .bold { font-weight: bold; }
         .divider { border-top: 1px dashed #000; margin: 6px 0; }
@@ -15,12 +28,24 @@
         .item-price { width: 60px; text-align: right; }
         .total-row { font-size: 14px; font-weight: bold; }
         @media print {
-            body { width: 80mm; }
-            .no-print { display: none; }
+            body { margin: 0; padding: 8px; width: 80mm; color: #000; }
+            * { color: #000 !important; }
+            .no-print { display: none !important; }
+        }
+        @media screen {
+            body { background: #f5f5f5; }
+            .receipt-wrap {
+                background: #fff;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+                margin: 20px auto;
+                padding: 10px;
+                width: 80mm;
+            }
         }
     </style>
 </head>
 <body>
+<div class="receipt-wrap">
     @if(!empty($storeLogo))
     <div class="center" style="margin-bottom:6px;">
         <img src="{{ asset('storage/' . $storeLogo) }}" alt="{{ $storeName }}" style="max-height:60px; max-width:180px; margin:0 auto; display:block;">
@@ -46,12 +71,12 @@
     @foreach($transaction->items as $item)
     <div style="margin: 3px 0;">
         <div class="item-name bold">{{ $item->product_name }}</div>
-        <div class="row" style="color:#555;">
+        <div class="row">
             <span class="item-name" style="padding-left:8px;">{{ $item->variant_info }}</span>
             <span class="item-qty">{{ $item->quantity }}</span>
             <span class="item-price">₱{{ number_format($item->subtotal, 2) }}</span>
         </div>
-        <div style="text-align:right; color:#555;">@ ₱{{ number_format($item->unit_price, 2) }} each</div>
+        <div style="text-align:right;">@ ₱{{ number_format($item->unit_price, 2) }} each</div>
     </div>
     @endforeach
 
@@ -73,16 +98,30 @@
     <div class="center" style="margin-top:4px; font-size:10px;">Please come again</div>
 
     <div class="no-print" style="margin-top:20px; text-align:center;">
-        <button onclick="window.print()" style="background:#4f46e5;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:14px;">
+        <button onclick="triggerPrint()" style="background:#1DB87A;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:14px;">
             🖨️ Print Receipt
         </button>
         <button onclick="window.close()" style="background:#6b7280;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-left:8px;">
             Close
         </button>
     </div>
+</div>{{-- end .receipt-wrap --}}
 
     <script>
-        window.onload = function() { window.print(); }
+        function triggerPrint() {
+            window.focus();
+            window.print();
+        }
+
+        // Auto-print: wait for all assets (fonts, images) to fully load
+        window.addEventListener('load', function () {
+            setTimeout(triggerPrint, 600);
+        });
+
+        // Close popup automatically after printing on macOS
+        window.addEventListener('afterprint', function () {
+            setTimeout(function () { window.close(); }, 300);
+        });
     </script>
 </body>
 </html>

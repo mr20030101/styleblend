@@ -105,7 +105,7 @@
 </div>
 
 <!-- Add/Edit Variant Modal -->
-<div id="variant-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="variant-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <h3 class="font-bold text-lg mb-4" id="variant-modal-title">Add Variant</h3>
         <div class="space-y-3">

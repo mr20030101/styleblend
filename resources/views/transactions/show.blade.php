@@ -4,7 +4,7 @@
 <div class="space-y-4 max-w-3xl">
     <div class="flex items-center gap-3">
         <a href="{{ route('transactions.index') }}" class="text-gray-400 hover:text-gray-600"><i class="fas fa-arrow-left"></i></a>
-        <h2 class="text-2xl font-bold text-gray-800">{{ $transaction->transaction_number }}</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $transaction->transaction_number }}</h2>
         <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $transaction->status === 'voided' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700' }}">
             {{ ucfirst($transaction->status) }}
         </span>
@@ -39,7 +39,7 @@
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
         <div class="p-4 border-b border-gray-100 font-semibold text-gray-700">Items</div>
-        <table class="w-full text-sm">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Product</th>
@@ -78,7 +78,7 @@
 </div>
 
 <!-- Void Modal -->
-<div id="void-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="void-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <h3 class="font-bold text-gray-800 mb-1">Void Transaction</h3>
         <p class="text-xs text-gray-500 mb-3" id="void-txn-num"></p>

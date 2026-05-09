@@ -29,13 +29,14 @@
         .label svg          { max-width: 100%; height: 14mm; margin: 1mm 0; }
         .label .lbl-price   { font-size: 10pt; font-weight: 800; margin-top: 1mm; letter-spacing: -0.5px; }
 
+        @page { margin: 5mm; }
         @media print {
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             body { background: white; margin: 0; padding: 0; }
             .no-print { display: none !important; }
             #labels-print {
                 display: grid !important;
-                padding: 5mm;
+                padding: 0;
                 gap: 2mm;
             }
             #labels-preview { display: none !important; }
@@ -155,7 +156,7 @@
 
 {{-- Data --}}
 <script>
-const storeName  = '{{ \App\Models\Setting::get("store_name", "StyleBlend") }}';
+const storeName  = '{{ \App\Models\Setting::get("store_name", "Track Buddy") }}';
 const variants   = @json($variantsData);
 const productName = '{{ addslashes($product->name) }}';
 

@@ -2,14 +2,14 @@
 @section('title', 'Customers')
 @section('content')
 <div class="space-y-4">
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Customers</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Customers</h2>
         <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> Add Customer
         </button>
     </div>
 
-    <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3">
+    <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, phone or email..."
             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <button type="submit" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm transition">Search</button>
@@ -17,7 +17,8 @@
     </form>
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Name</th>
@@ -57,12 +58,13 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
         <div class="p-4 border-t border-gray-100">{{ $customers->links() }}</div>
     </div>
 </div>
 
 <!-- Modal -->
-<div id="cust-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="cust-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <h3 class="font-bold text-lg mb-4" id="modal-title">Add Customer</h3>
         <div class="space-y-3">

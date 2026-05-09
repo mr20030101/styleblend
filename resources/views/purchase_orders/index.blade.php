@@ -2,15 +2,16 @@
 @section('title', 'Purchase Orders')
 @section('content')
 <div class="space-y-4">
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Purchase Orders</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Purchase Orders</h2>
         <a href="{{ route('purchase-orders.create') }}" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> New Order
         </a>
     </div>
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">PO #</th>
@@ -53,6 +54,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
         <div class="p-4 border-t border-gray-100">{{ $orders->links() }}</div>
     </div>
 </div>

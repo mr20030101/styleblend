@@ -2,14 +2,14 @@
 @section('title', 'Inventory Report')
 @section('content')
 <div class="space-y-4">
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Inventory Report</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Inventory Report</h2>
         <a href="{{ route('reports.inventory.csv') }}" class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm transition">
             <i class="fas fa-file-csv mr-1"></i> Export CSV
         </a>
     </div>
 
-    <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3">
+    <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
         <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
             <input type="checkbox" name="low_stock" value="1" {{ request('low_stock') ? 'checked' : '' }} class="rounded border-gray-300 text-gray-600">
             Show Low Stock Only (≤5)
@@ -24,7 +24,8 @@
     </form>
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Product</th>

@@ -4,8 +4,8 @@
 <div class="space-y-5">
 
     {{-- Header --}}
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Raffle</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Raffle</h2>
         <button onclick="$('#start-modal').removeClass('hidden')"
             class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             <i class="fas fa-plus mr-1"></i> New Raffle Period
@@ -48,10 +48,10 @@
     @endif
 
     {{-- Main content: sidebar + right --}}
-    <div class="flex gap-5 items-start">
+    <div class="flex flex-col md:flex-row gap-5 items-start">
 
         {{-- Left: Period list --}}
-        <div class="w-52 flex-shrink-0 bg-white rounded-xl shadow p-4">
+        <div class="w-full md:w-52 md:shrink-0 bg-white rounded-xl shadow p-4">
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Periods</p>
             <div class="space-y-1">
                 @forelse($periods as $p)
@@ -151,7 +151,8 @@
 
             {{-- Entries table --}}
             <div class="bg-white rounded-xl shadow overflow-hidden">
-                <table class="w-full text-sm">
+                <div class="overflow-x-auto">
+                <table class="w-full min-w-[640px] text-sm">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th class="text-left px-4 py-3 font-semibold text-gray-600">Customer</th>
@@ -200,6 +201,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                </div>
                 <div class="p-4 border-t border-gray-100">{{ $entries->links() }}</div>
             </div>
 
@@ -215,7 +217,7 @@
 </div>
 
 {{-- Start New Period Modal --}}
-<div id="start-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="start-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-ticket-alt text-gray-600 mr-2"></i>New Raffle Period</h3>
@@ -261,7 +263,7 @@
 </div>
 
 {{-- End Raffle Confirm Modal --}}
-<div id="end-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="end-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 text-center">
         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-flag-checkered text-gray-600 text-2xl"></i>

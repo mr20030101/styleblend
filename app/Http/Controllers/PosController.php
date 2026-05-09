@@ -76,6 +76,89 @@ class PosController extends Controller
         }));
     }
 
+    public function scanBarcode(Request $request)
+    {
+        $code = trim($request->barcode ?? '');
+        if (!$code) return response()->json(['found' => false]);
+
+        // 1. Exact match on variant SKU (printed on barcode labels)
+        $variant = ProductVariant::with(['product.category'])
+            ->where('sku', $code)
+            ->where('is_active', true)
+            ->first();
+
+        if ($variant && $variant->product->is_active) {
+            return response()->json([
+                'found'   => true,
+                'type'    => 'variant',
+                'product' => [
+                    'id'        => $variant->product->id,
+                    'name'      => $variant->product->name,
+                    'image_url' => $variant->product->image_url,
+                    'category'  => $variant->product->category->name,
+                    'variants'  => $variant->product->activeVariants->map(fn($v) => [
+                        'id'             => $v->id,
+                        'size'           => $v->size,
+                        'color'          => $v->color,
+                        'price'          => $v->price,
+                        'stock_quantity' => $v->stock_quantity,
+                        'variant_info'   => $v->variant_info,
+                    ]),
+                ],
+                'variant' => [
+                    'id'             => $variant->id,
+                    'size'           => $variant->size,
+                    'color'          => $variant->color,
+                    'price'          => $variant->price,
+                    'stock_quantity' => $variant->stock_quantity,
+                    'variant_info'   => $variant->variant_info,
+                ],
+            ]);
+        }
+
+        // 2. Exact match on product barcode or product SKU
+        $product = Product::with(['activeVariants', 'category'])
+            ->where('is_active', true)
+            ->where(fn($q) => $q->where('barcode', $code)->orWhere('sku', $code))
+            ->first();
+
+        if ($product) {
+            $variants = $product->activeVariants;
+            $data = [
+                'found'   => true,
+                'type'    => $variants->count() === 1 ? 'variant' : 'product',
+                'product' => [
+                    'id'        => $product->id,
+                    'name'      => $product->name,
+                    'image_url' => $product->image_url,
+                    'category'  => $product->category->name,
+                    'variants'  => $variants->map(fn($v) => [
+                        'id'             => $v->id,
+                        'size'           => $v->size,
+                        'color'          => $v->color,
+                        'price'          => $v->price,
+                        'stock_quantity' => $v->stock_quantity,
+                        'variant_info'   => $v->variant_info,
+                    ]),
+                ],
+            ];
+            if ($variants->count() === 1) {
+                $v = $variants->first();
+                $data['variant'] = [
+                    'id'             => $v->id,
+                    'size'           => $v->size,
+                    'color'          => $v->color,
+                    'price'          => $v->price,
+                    'stock_quantity' => $v->stock_quantity,
+                    'variant_info'   => $v->variant_info,
+                ];
+            }
+            return response()->json($data);
+        }
+
+        return response()->json(['found' => false]);
+    }
+
     public function checkout(Request $request)
     {
         $data = $request->validate([

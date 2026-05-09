@@ -2,8 +2,8 @@
 @section('title', 'Products')
 @section('content')
 <div class="space-y-4">
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Products</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Products</h2>
         <div class="flex gap-2">
             <a href="{{ route('products.import') }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
                 <i class="fas fa-file-import mr-1"></i> Import CSV
@@ -15,7 +15,7 @@
     </div>
 
     <!-- Filters -->
-    <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3">
+    <form method="GET" class="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..."
             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
         <select name="category_id" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
@@ -36,7 +36,8 @@
 
     <!-- Table -->
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Product</th>
@@ -93,6 +94,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
         <div class="p-4 border-t border-gray-100">{{ $products->links() }}</div>
     </div>
 </div>

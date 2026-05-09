@@ -2,15 +2,16 @@
 @section('title', 'Brands')
 @section('content')
 <div class="space-y-4">
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Brands</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Brands</h2>
         <button onclick="openModal()" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg transition">
             <i class="fas fa-plus mr-2"></i>Add Brand
         </button>
     </div>
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px]">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-6 py-3 font-semibold text-gray-600">Brand</th>
@@ -82,7 +83,7 @@
 </div>
 
 <!-- Brand Modal -->
-<div id="brand-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+<div id="brand-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 id="modal-title" class="text-lg font-semibold text-gray-800">Add Brand</h3>

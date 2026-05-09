@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
     // POS
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::get('/pos/search', [PosController::class, 'searchProducts'])->name('pos.search');
+    Route::get('/pos/scan', [PosController::class, 'scanBarcode'])->name('pos.scan');
     Route::post('/pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
     Route::get('/pos/receipt/{id}', [PosController::class, 'receipt'])->name('pos.receipt');
     Route::get('/customers/search', [\App\Http\Controllers\CustomerController::class, 'search'])->name('customers.search');

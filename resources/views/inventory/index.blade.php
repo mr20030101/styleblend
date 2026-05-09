@@ -2,8 +2,8 @@
 @section('title', 'Inventory')
 @section('content')
 <div class="space-y-4">
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800">Inventory</h2>
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Inventory</h2>
         @if($lowStockCount > 0)
         <span class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium">
             <i class="fas fa-exclamation-triangle mr-1"></i> {{ $lowStockCount }} low stock items
@@ -30,7 +30,8 @@
     </form>
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Product</th>
@@ -74,12 +75,13 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
         <div class="p-4 border-t border-gray-100">{{ $variants->links() }}</div>
     </div>
 </div>
 
 <!-- Adjust Modal -->
-<div id="adjust-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="adjust-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <h3 class="font-bold text-lg mb-1">Stock Adjustment</h3>
         <p class="text-sm text-gray-500 mb-4" id="adjust-product-name"></p>
@@ -116,7 +118,7 @@
 </div>
 
 <!-- History Modal -->
-<div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="history-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg">Stock History</h3>

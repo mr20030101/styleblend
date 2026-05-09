@@ -4,7 +4,7 @@
 <div class="max-w-3xl space-y-4">
     <div class="flex items-center gap-3">
         <a href="{{ route('purchase-orders.index') }}" class="text-gray-400 hover:text-gray-600"><i class="fas fa-arrow-left"></i></a>
-        <h2 class="text-2xl font-bold text-gray-800">{{ $purchaseOrder->po_number }}</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $purchaseOrder->po_number }}</h2>
         <span class="px-2 py-0.5 rounded-full text-xs font-medium
             {{ $purchaseOrder->status === 'received' ? 'bg-gray-200 text-gray-700' : ($purchaseOrder->status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
             {{ ucfirst($purchaseOrder->status) }}
@@ -34,7 +34,7 @@
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
         <div class="p-4 border-b border-gray-100 font-semibold text-gray-700">Items</div>
-        <table class="w-full text-sm">
+        <table class="w-full min-w-[640px] text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Product</th>

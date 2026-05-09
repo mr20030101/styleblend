@@ -6,6 +6,7 @@
 .product-card:hover { transform: translateY(-2px); box-shadow: 0 0 0 2px #111, 0 8px 20px rgba(0,0,0,0.1); z-index: 10; }
 #cart-items::-webkit-scrollbar { width: 4px; }
 #cart-items::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+.pos-modal:not(.hidden) { display: flex; }
 </style>
 @endpush
 @section('content')
@@ -13,28 +14,28 @@
 
     <!-- LEFT: Product Grid -->
     <div class="flex-1 flex flex-col min-w-0">
-        <div class="bg-white rounded-xl shadow p-4 mb-4">
-            <div class="flex gap-3">
-                <div class="flex-1 relative">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    <input type="text" id="search-input" placeholder="Search products or scan barcode... (F2)"
-                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand text-sm">
+        <div class="bg-white rounded-xl shadow p-3 md:p-4 mb-3 md:mb-4">
+            <div class="flex flex-wrap gap-2 md:gap-3">
+                <div class="flex-1 min-w-0 relative">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+                    <input type="text" id="search-input" placeholder="Search products... (F2)"
+                        class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand text-sm">
                 </div>
-                <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand max-w-[140px] md:max-w-none">
                     <option value="">All Categories</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                     @endforeach
                 </select>
                 <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)"
-                    class="flex-shrink-0 border border-gray-300 hover:bg-gray-100 text-gray-600 px-3 rounded-lg transition">
+                    class="hidden md:flex flex-shrink-0 border border-gray-300 hover:bg-gray-100 text-gray-600 px-3 rounded-lg transition items-center">
                     <i id="fullscreen-icon" class="fas fa-expand"></i>
                 </button>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto">
-            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-1">
+        <div class="flex-1 overflow-y-auto pb-24 md:pb-1">
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 p-1">
                 <div class="col-span-full text-center py-12 text-gray-400">
                     <i class="fas fa-spinner fa-spin text-4xl mb-3"></i>
                     <p>Loading products...</p>
@@ -43,12 +44,20 @@
         </div>
     </div>
 
-    <!-- RIGHT: Cart -->
-    <div class="w-96 flex-shrink-0 bg-white rounded-xl shadow flex flex-col overflow-visible">
-        <div class="p-4 border-b border-gray-100">
+    <!-- RIGHT: Cart — drawer on mobile, sidebar on desktop -->
+    <div id="cart-panel"
+        class="fixed inset-x-0 bottom-0 z-30 max-h-[85vh] rounded-t-2xl translate-y-full
+               md:relative md:inset-auto md:bottom-auto md:z-auto md:max-h-none md:h-full md:w-96 md:rounded-xl md:translate-y-0
+               flex-shrink-0 bg-white shadow-2xl md:shadow flex flex-col overflow-visible transition-transform duration-300">
+        {{-- Mobile drag handle --}}
+        <div class="md:hidden flex justify-center pt-2 pb-1 cursor-pointer" onclick="closeMobileCart()">
+            <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+        <div class="px-4 py-3 border-b border-gray-100">
             <h2 class="font-bold text-gray-800 text-lg flex items-center gap-2">
                 <i class="fas fa-shopping-cart text-gray-900"></i> Cart
                 <span id="cart-count" class="bg-gray-900 text-white text-xs rounded-full px-2 py-0.5 ml-auto">0</span>
+                <button onclick="closeMobileCart()" class="md:hidden text-gray-400 hover:text-gray-700 text-xl ml-1">&times;</button>
             </h2>
         </div>
 
@@ -139,7 +148,7 @@
 </div>
 
 <!-- Variant Selection Modal -->
-<div id="variant-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="variant-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800" id="modal-product-name">Select Variant</h3>
@@ -150,7 +159,7 @@
 </div>
 
 <!-- Checkout Modal -->
-<div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
+<div id="checkout-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800">Checkout</h3>
@@ -196,7 +205,7 @@
 </div>
 
 <!-- Receipt Modal -->
-<div id="receipt-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+<div id="receipt-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 text-center">
         <div class="w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-check text-white text-2xl"></i>
@@ -219,10 +228,10 @@
         </div>
         <div id="receipt-raffle"></div>
         <div class="flex gap-3 mt-4">
-            <a id="print-receipt-btn" href="#" target="_blank"
+            <button id="print-receipt-btn" onclick="openReceipt()"
                 class="flex-1 bg-brand hover:bg-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold transition">
                 <i class="fas fa-print mr-1"></i> Print Receipt
-            </a>
+            </button>
             <a id="view-txn-btn" href="#" target="_blank"
                 class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-semibold transition text-center">
                 <i class="fas fa-eye mr-1"></i> View
@@ -235,8 +244,20 @@
     </div>
 </div>
 
+<!-- Mobile cart backdrop -->
+<div id="cart-backdrop" onclick="closeMobileCart()"
+    class="md:hidden fixed inset-0 bg-black/50 z-20 hidden"></div>
+
+<!-- Mobile cart FAB -->
+<button id="cart-fab" onclick="openMobileCart()"
+    class="md:hidden fixed bottom-6 right-6 z-20 bg-brand hover:bg-brand-dark text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition">
+    <i class="fas fa-shopping-cart text-lg"></i>
+    <span id="cart-fab-count"
+        class="absolute -top-1 -right-1 bg-gray-900 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+</button>
+
 <!-- Quick Add Customer Modal -->
-<div id="quick-add-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+<div id="quick-add-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-user-plus text-gray-700 mr-2"></i>New Customer</h3>
@@ -295,6 +316,33 @@ $('#search-input').on('input', function() {
     searchTimeout = setTimeout(searchProducts, 300);
 });
 $('#category-filter').on('change', searchProducts);
+
+// ── Barcode scan (Enter key = exact scan → auto-add) ────────
+$('#search-input').on('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const code = $(this).val().trim();
+    if (!code) return;
+    clearTimeout(searchTimeout);
+
+    $.get('{{ route("pos.scan") }}', { barcode: code }, function(res) {
+        if (!res.found) {
+            showToast('No product found for: ' + code, 'error');
+            return;
+        }
+        if (res.type === 'variant') {
+            addToCart(res.product, res.variant);
+            $('#search-input').val('').focus();
+            searchProducts();
+        } else {
+            // Multiple variants — open selection modal
+            selectProduct(res.product);
+            $('#search-input').val('');
+        }
+    }).fail(function() {
+        showToast('Scan error. Try again.', 'error');
+    });
+});
 
 function searchProducts() {
     $.get('{{ route("pos.search") }}', {
@@ -477,6 +525,8 @@ function renderCart() {
     if (!cart.length) {
         $('#cart-items').html('<div class="text-center py-12 text-gray-400"><i class="fas fa-shopping-cart text-4xl mb-3"></i><p class="text-sm">Cart is empty</p></div>');
         $('#cart-count').text(0);
+        const fab = document.getElementById('cart-fab-count');
+        if (fab) { fab.textContent = 0; fab.classList.add('hidden'); }
         $('#checkout-btn').prop('disabled', true);
         updateTotals();
         return;
@@ -503,7 +553,10 @@ function renderCart() {
         </div>`;
     });
     $('#cart-items').html(html);
-    $('#cart-count').text(cart.reduce((s, i) => s + i.quantity, 0));
+    const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
+    $('#cart-count').text(totalQty);
+    const fab = document.getElementById('cart-fab-count');
+    if (fab) { fab.textContent = totalQty; fab.classList.toggle('hidden', totalQty === 0); }
     $('#checkout-btn').prop('disabled', false);
     updateTotals();
 }
@@ -613,7 +666,7 @@ function processCheckout() {
             $('#receipt-total').text('₱' + total.toFixed(2));
             $('#receipt-paid').text('₱' + paid.toFixed(2));
             $('#receipt-change').text('₱' + parseFloat(res.change).toFixed(2));
-            $('#print-receipt-btn').attr('href', '/pos/receipt/' + res.transaction_id);
+            $('#print-receipt-btn').data('receipt-url', '/pos/receipt/' + res.transaction_id);
             $('#view-txn-btn').attr('href', '/transactions/' + res.transaction_id);
 
             if (res.raffle_entries > 0) {
@@ -638,6 +691,16 @@ function processCheckout() {
     });
 }
 
+function openReceipt() {
+    const url = $('#print-receipt-btn').data('receipt-url');
+    if (!url) return;
+    const popup = window.open(url, 'receipt_print',
+        'width=420,height=700,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
+    );
+    if (popup) popup.focus();
+    else window.open(url, '_blank'); // fallback if popup is blocked
+}
+
 function newTransaction() {
     cart = [];
     selectedCustomer = null;
@@ -658,6 +721,18 @@ $(document).on('keydown', function(e) {
     if (e.key === 'F12') { e.preventDefault(); if (cart.length) openCheckout(); }
     if (e.key === 'Escape') { closeVariantModal(); closeCheckout(); $('#customer-dropdown, #quick-add-modal').addClass('hidden'); }
 });
+
+// ── Mobile cart drawer ──────────────────────────────────────
+function openMobileCart() {
+    document.getElementById('cart-panel').classList.remove('translate-y-full');
+    document.getElementById('cart-backdrop').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+function closeMobileCart() {
+    document.getElementById('cart-panel').classList.add('translate-y-full');
+    document.getElementById('cart-backdrop').classList.add('hidden');
+    document.body.style.overflow = '';
+}
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
