@@ -16,11 +16,15 @@ class CustomerController extends Controller
         }
 
         return response()->json(
-            Customer::where('is_active', true)
-                ->where(function ($query) use ($q) {
+            Customer::where(function ($query) use ($q) {
                     $query->where('name', 'like', '%' . $q . '%')
                           ->orWhere('phone', 'like', '%' . $q . '%')
                           ->orWhere('email', 'like', '%' . $q . '%');
+                })
+                ->where(function ($query) {
+                    // include both active=true AND null (legacy records without is_active set)
+                    $query->where('is_active', true)
+                          ->orWhereNull('is_active');
                 })
                 ->orderBy('name')
                 ->limit(10)
