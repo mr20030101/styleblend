@@ -16,9 +16,12 @@ class CustomerController extends Controller
         }
 
         return response()->json(
-            Customer::where('name', 'like', '%' . $q . '%')
-                ->orWhere('phone', 'like', '%' . $q . '%')
-                ->orWhere('email', 'like', '%' . $q . '%')
+            Customer::where('is_active', true)
+                ->where(function ($query) use ($q) {
+                    $query->where('name', 'like', '%' . $q . '%')
+                          ->orWhere('phone', 'like', '%' . $q . '%')
+                          ->orWhere('email', 'like', '%' . $q . '%');
+                })
                 ->orderBy('name')
                 ->limit(10)
                 ->get(['id', 'name', 'phone', 'email'])
@@ -32,6 +35,8 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255|unique:customers,email',
         ]);
+
+        $data['is_active'] = true;
 
         $customer = Customer::create($data);
 

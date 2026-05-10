@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class SettingController extends Controller
 {
     public function index()
     {
         $settings = Setting::all()->pluck('value', 'key');
-        return view('settings.index', compact('settings'));
+        $tokens   = Auth::user()->tokens()->orderByDesc('created_at')->get();
+        return view('settings.index', compact('settings', 'tokens'));
     }
 
     public function update(Request $request)
@@ -62,5 +65,27 @@ class SettingController extends Controller
         Setting::setMany($data);
 
         return redirect()->route('settings.index')->with('success', 'Settings saved successfully.');
+    }
+
+    public function createToken(Request $request)
+    {
+        $request->validate(['token_name' => 'required|string|max:100']);
+
+        $token = Auth::user()->createToken($request->token_name)->plainTextToken;
+
+        return redirect()->route('settings.index')
+            ->with('new_token', $token)
+            ->with('success', 'API token created. Copy it now — it will not be shown again.');
+    }
+
+    public function revokeToken(PersonalAccessToken $token)
+    {
+        if ($token->tokenable_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $token->delete();
+
+        return redirect()->route('settings.index')->with('success', 'Token revoked.');
     }
 }

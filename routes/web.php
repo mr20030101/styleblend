@@ -112,6 +112,8 @@ Route::middleware(['auth'])->group(function () {
         // Settings
         Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/tokens', [\App\Http\Controllers\SettingController::class, 'createToken'])->name('settings.tokens.create');
+        Route::delete('/settings/tokens/{token}', [\App\Http\Controllers\SettingController::class, 'revokeToken'])->name('settings.tokens.revoke');
 
         // Customers
         Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])->name('customers.index');

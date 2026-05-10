@@ -219,6 +219,73 @@
             </button>
         </div>
     </form>
+
+    {{-- API Token Management --}}
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+        <h3 class="font-semibold text-gray-700 border-b pb-2 flex items-center gap-2">
+            <i class="fas fa-key text-gray-600"></i> API Tokens
+        </h3>
+        <p class="text-sm text-gray-500">Generate tokens for external apps (e.g. mobile POS) to authenticate with the API.</p>
+
+        @if (session('new_token'))
+            <div class="bg-green-50 border border-green-300 rounded-lg p-4 space-y-2">
+                <p class="text-sm font-medium text-green-800"><i class="fas fa-check-circle mr-1"></i> Token created — copy it now, it won't be shown again.</p>
+                <div class="flex items-center gap-2">
+                    <code id="new-token-value" class="flex-1 bg-white border border-green-300 rounded px-3 py-2 text-sm font-mono text-gray-800 break-all select-all">{{ session('new_token') }}</code>
+                    <button type="button" onclick="copyToken()" class="shrink-0 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        @endif
+
+        {{-- Create new token --}}
+        <form method="POST" action="{{ route('settings.tokens.create') }}" class="flex items-end gap-3">
+            @csrf
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Token Name</label>
+                <input type="text" name="token_name" placeholder="e.g. Mobile App, Tablet POS"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand text-sm" required>
+            </div>
+            <button type="submit" class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap">
+                <i class="fas fa-plus mr-1"></i> Generate Token
+            </button>
+        </form>
+
+        {{-- Existing tokens --}}
+        @if ($tokens->isNotEmpty())
+            <div class="space-y-2 mt-2">
+                @foreach ($tokens as $token)
+                    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ $token->name }}</p>
+                            <p class="text-xs text-gray-400">
+                                Created {{ $token->created_at->format('M d, Y') }}
+                                @if ($token->last_used_at)
+                                    &middot; Last used {{ $token->last_used_at->diffForHumans() }}
+                                @else
+                                    &middot; Never used
+                                @endif
+                                @if ($token->expires_at)
+                                    &middot; Expires {{ $token->expires_at->format('M d, Y') }}
+                                @endif
+                            </p>
+                        </div>
+                        <form method="POST" action="{{ route('settings.tokens.revoke', $token) }}"
+                              onsubmit="return confirm('Revoke this token? Any app using it will lose access.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:text-red-700 text-sm transition">
+                                <i class="fas fa-trash-alt mr-1"></i> Revoke
+                            </button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-sm text-gray-400 italic">No tokens yet.</p>
+        @endif
+    </div>
 </div>
 
 @push('scripts')
@@ -233,6 +300,15 @@ function previewLogo(input) {
         };
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+function copyToken() {
+    const val = document.getElementById('new-token-value').innerText;
+    navigator.clipboard.writeText(val).then(() => {
+        const btn = event.currentTarget;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+    });
 }
 </script>
 @endpush
