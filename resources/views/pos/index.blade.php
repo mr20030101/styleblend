@@ -709,7 +709,6 @@ function processCheckout() {
                     <div class="mt-2 bg-gray-900 rounded-xl p-4 text-center text-white">
                         <p class="text-xs font-medium opacity-80 mb-1">🎟 Raffle Tickets Earned!</p>
                         <p class="text-3xl font-bold">${res.raffle_entries} ${res.raffle_entries===1?'Entry':'Entries'}</p>
-                        <p class="text-sm font-mono opacity-70 mt-1 tracking-widest">${res.raffle_tickets}</p>
                     </div>`);
             } else {
                 $('#receipt-raffle').html('');
