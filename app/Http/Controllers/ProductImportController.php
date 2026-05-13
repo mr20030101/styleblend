@@ -28,12 +28,12 @@ class ProductImportController extends Controller
             // Header row
             fputcsv($file, [
                 'product_name',   // required
-                'category',       // required — must match existing category name
+                'category',       // required — created automatically if it doesn't exist
                 'sku',            // required — unique
                 'barcode',        // optional
                 'description',    // optional
-                'size',           // required — XS, S, M, L, XL
-                'color',          // required
+                'size',           // optional — any value e.g. XS, S, M, L, XL, XXL, 28, 30, Free Size
+                'color',          // optional
                 'price',          // required
                 'cost_price',     // optional
                 'stock_quantity', // required
@@ -43,9 +43,11 @@ class ProductImportController extends Controller
             fputcsv($file, ['Floral Dress', 'Women', 'WD-002', '', 'Summer dress', 'M', 'Red', '29.99', '15.00', '8']);
             fputcsv($file, ['Floral Dress', 'Women', 'WD-002', '', 'Summer dress', 'L', 'Blue', '34.99', '15.00', '5']);
             fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'S', 'Black', '14.99', '7.00', '20']);
-            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'M', 'Black', '14.99', '7.00', '25']);
-            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'L', 'Navy', '14.99', '7.00', '15']);
-            fputcsv($file, ['Kids Polo', 'Kids', 'KP-002', '', '', 'XS', 'Yellow', '12.99', '6.00', '10']);
+            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'M', '', '14.99', '7.00', '25']);
+            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'L', '', '14.99', '7.00', '15']);
+            fputcsv($file, ['Kids Polo', 'Kids', 'KP-002', '', '', '2T', 'Yellow', '12.99', '6.00', '10']);
+            fputcsv($file, ['Jeans', 'Men', 'MJ-001', '', '', '28', '', '49.99', '25.00', '12']);
+            fputcsv($file, ['Jeans', 'Men', 'MJ-001', '', '', '30', '', '49.99', '25.00', '10']);
             fclose($file);
         };
 
@@ -64,7 +66,7 @@ class ProductImportController extends Controller
         $errors  = [];
         $rowNum  = 1;
 
-        $categories = Category::pluck('id', 'name')->mapWithKeys(fn($id, $name) => [strtolower($name) => $id]);
+        $categories   = Category::pluck('id', 'name')->mapWithKeys(fn($id, $name) => [strtolower($name) => $id]);
         $existingSkus = Product::pluck('sku')->map(fn($s) => strtolower($s))->toArray();
 
         while (($row = fgetcsv($handle)) !== false) {
@@ -77,7 +79,7 @@ class ProductImportController extends Controller
                 'sku'            => trim($row[2] ?? ''),
                 'barcode'        => trim($row[3] ?? '') ?: null,
                 'description'    => trim($row[4] ?? '') ?: null,
-                'size'           => strtoupper(trim($row[5] ?? '')),
+                'size'           => trim($row[5] ?? ''),
                 'color'          => trim($row[6] ?? ''),
                 'price'          => trim($row[7] ?? ''),
                 'cost_price'     => trim($row[8] ?? '') ?: 0,
@@ -88,19 +90,24 @@ class ProductImportController extends Controller
 
             if (empty($data['product_name'])) $rowErrors[] = 'Product name required';
             if (empty($data['sku']))          $rowErrors[] = 'SKU required';
-            if (empty($data['size']))         $rowErrors[] = 'Size required';
-            if (empty($data['color']))        $rowErrors[] = 'Color required';
             if (!is_numeric($data['price']) || $data['price'] < 0) $rowErrors[] = 'Invalid price';
             if (!is_numeric($data['stock_quantity']) || $data['stock_quantity'] < 0) $rowErrors[] = 'Invalid stock';
 
-            $catId = $categories[strtolower($data['category'])] ?? null;
-            if (!$catId) $rowErrors[] = "Category '{$data['category']}' not found";
-
-            if (!in_array($data['size'], ['XS', 'S', 'M', 'L', 'XL'])) {
-                $rowErrors[] = "Invalid size '{$data['size']}' (use XS/S/M/L/XL)";
+            // Auto-create category if it doesn't exist
+            $catKey = strtolower($data['category']);
+            if (!empty($data['category']) && !isset($categories[$catKey])) {
+                $newCat = Category::firstOrCreate(
+                    ['name' => $data['category']],
+                    ['is_active' => true]
+                );
+                $categories[$catKey] = $newCat->id;
             }
+            $catId = $categories[$catKey] ?? null;
+            if (!$catId) $rowErrors[] = 'Category required';
 
-            $data['category_id'] = $catId;
+            $data['category_id']  = $catId;
+            $data['is_new_category'] = isset($newCat) && $newCat->wasRecentlyCreated ? $data['category'] : null;
+            unset($newCat);
             $data['row']         = $rowNum;
             $data['errors']      = $rowErrors;
             $data['is_new_sku']  = !in_array(strtolower($data['sku']), $existingSkus);
@@ -125,14 +132,23 @@ class ProductImportController extends Controller
             return redirect()->route('products.import')->with('error', 'No data to import. Please upload again.');
         }
 
-        $imported = 0;
-        $skipped  = 0;
+        $imported   = 0;
+        $skipped    = 0;
         $categories = Category::pluck('id', 'name')->mapWithKeys(fn($id, $name) => [strtolower($name) => $id]);
 
         foreach ($rows as $row) {
             if (!empty($row['errors'])) { $skipped++; continue; }
 
-            $catId = $categories[strtolower($row['category'])] ?? null;
+            // Auto-create category if it doesn't exist
+            $catKey = strtolower($row['category']);
+            if (!empty($row['category']) && !isset($categories[$catKey])) {
+                $newCat = Category::firstOrCreate(
+                    ['name' => $row['category']],
+                    ['is_active' => true]
+                );
+                $categories[$catKey] = $newCat->id;
+            }
+            $catId = $categories[$catKey] ?? null;
             if (!$catId) { $skipped++; continue; }
 
             // Find or create product by SKU
@@ -153,7 +169,8 @@ class ProductImportController extends Controller
             }
 
             // Find or create variant
-            $variantSku = $row['sku'] . '-' . $row['size'] . '-' . strtoupper(substr($row['color'], 0, 3));
+            $colorPart  = !empty($row['color']) ? '-' . strtoupper(substr($row['color'], 0, 3)) : '';
+            $variantSku = $row['sku'] . '-' . $row['size'] . $colorPart;
 
             ProductVariant::updateOrCreate(
                 ['product_id' => $product->id, 'size' => $row['size'], 'color' => $row['color']],
