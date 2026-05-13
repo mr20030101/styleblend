@@ -170,7 +170,7 @@ class ProductImportController extends Controller
 
             // Find or create variant
             $colorPart  = !empty($row['color']) ? '-' . strtoupper(substr($row['color'], 0, 3)) : '';
-            $variantSku = $row['sku'] . '-' . $row['size'] . $colorPart;
+            $variantSku = trim($row['sku'] . '-' . $row['size'] . $colorPart, '-');
 
             ProductVariant::updateOrCreate(
                 ['product_id' => $product->id, 'size' => $row['size'], 'color' => $row['color']],

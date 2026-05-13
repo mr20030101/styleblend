@@ -77,13 +77,14 @@ class ProductController extends Controller
         $product->load('variants', 'category');
 
         $variantsData = $product->variants->map(function ($v) use ($product) {
-            $barcode = $v->sku ?: ($product->sku . '-' . $v->size);
+            $sku = trim($v->sku ?? '', '-');
+            $barcode = $sku ?: trim($product->sku . '-' . $v->size, '-');
             return [
                 'id'      => $v->id,
                 'size'    => $v->size,
                 'color'   => $v->color,
                 'price'   => $v->price,
-                'sku'     => $v->sku ?: $barcode,
+                'sku'     => $sku ?: $barcode,
                 'barcode' => $barcode,
             ];
         })->values();
@@ -104,7 +105,8 @@ class ProductController extends Controller
                     'name'     => $p->name,
                     'category' => $p->category->name,
                     'variants' => $p->variants->map(function ($v) use ($p) {
-                        $barcode = $v->sku ?: ($p->sku . '-' . $v->size);
+                        $sku = trim($v->sku ?? '', '-');
+                        $barcode = $sku ?: trim($p->sku . '-' . $v->size, '-');
                         return [
                             'id'      => $v->id,
                             'size'    => $v->size,
@@ -163,7 +165,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
         ]);
-        $data['sku'] = $product->sku . '-' . $data['size'] . '-' . strtoupper(substr($data['color'], 0, 3)) . rand(10, 99);
+        $data['sku'] = trim($product->sku . '-' . $data['size'] . '-' . strtoupper(substr($data['color'], 0, 3)) . rand(10, 99), '-');
         $variant = $product->variants()->create($data);
         return response()->json(['success' => true, 'variant' => $variant]);
     }
