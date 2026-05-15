@@ -8,6 +8,9 @@
             <a href="{{ route('products.barcodes.batch') }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
                 <i class="fas fa-barcode mr-1"></i> Batch Barcodes
             </a>
+            <a href="{{ route('products.export') }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                <i class="fas fa-file-export mr-1"></i> Export CSV
+            </a>
             <a href="{{ route('products.import') }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
                 <i class="fas fa-file-import mr-1"></i> Import CSV
             </a>

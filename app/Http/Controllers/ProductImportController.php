@@ -10,6 +10,58 @@ use Illuminate\Support\Str;
 
 class ProductImportController extends Controller
 {
+    public function export()
+    {
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="products_export_' . now()->format('Ymd_His') . '.csv"',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['product_name', 'category', 'sku', 'barcode', 'description', 'size', 'color', 'price', 'cost_price', 'stock_quantity', 'gender']);
+
+            $products = Product::with(['category', 'variants'])->orderBy('name')->get();
+            foreach ($products as $product) {
+                if ($product->variants->isEmpty()) {
+                    fputcsv($file, [
+                        $product->name,
+                        $product->category->name ?? '',
+                        $product->sku,
+                        $product->barcode ?? '',
+                        $product->description ?? '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        $product->gender ?? '',
+                    ]);
+                } else {
+                    foreach ($product->variants as $variant) {
+                        $variantSku = trim($variant->sku ?? '', '-') ?: trim($product->sku . ($variant->size ? '-' . $variant->size : ''), '-');
+                        fputcsv($file, [
+                            $product->name,
+                            $product->category->name ?? '',
+                            $product->sku,
+                            $product->barcode ?? '',
+                            $product->description ?? '',
+                            $variant->size ?? '',
+                            $variant->color ?? '',
+                            $variant->price,
+                            $variant->cost_price ?? '',
+                            $variant->stock_quantity,
+                            $product->gender ?? '',
+                        ]);
+                    }
+                }
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function showForm()
     {
         $categories = Category::where('is_active', true)->orderBy('name')->get();

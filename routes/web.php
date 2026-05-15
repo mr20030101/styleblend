@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Products
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/export', [\App\Http\Controllers\ProductImportController::class, 'export'])->name('products.export');
         Route::get('/products/import', [\App\Http\Controllers\ProductImportController::class, 'showForm'])->name('products.import');
         Route::get('/products/import/template', [\App\Http\Controllers\ProductImportController::class, 'downloadTemplate'])->name('products.import.template');
         Route::post('/products/import/preview', [\App\Http\Controllers\ProductImportController::class, 'preview'])->name('products.import.preview');
