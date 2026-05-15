@@ -101,9 +101,16 @@ class ProductImportController extends Controller
     {
         $request->validate(['csv_file' => 'required|file|mimes:csv,txt|max:2048']);
 
-        $file    = $request->file('csv_file');
-        $handle  = fopen($file->getRealPath(), 'r');
-        $headers = fgetcsv($handle); // skip header row
+        $file       = $request->file('csv_file');
+        $handle     = fopen($file->getRealPath(), 'r');
+        $headerRow  = fgetcsv($handle);
+
+        // Map column names to indices so column order doesn't matter
+        $col = [];
+        foreach ($headerRow as $i => $name) {
+            $col[strtolower(trim($name))] = $i;
+        }
+        $get = fn($row, $key) => trim($row[$col[$key] ?? -1] ?? '');
 
         $rows    = [];
         $errors  = [];
@@ -124,10 +131,10 @@ class ProductImportController extends Controller
             if (count(array_filter($row)) === 0) continue; // skip empty rows
 
             $validGenders = array_keys(\App\Models\Product::GENDERS);
-            $rawGender    = strtolower(trim($row[10] ?? ''));
-            $rawType      = strtolower(trim($row[11] ?? ''));
-            $size         = trim($row[5] ?? '');
-            $color        = trim($row[6] ?? '');
+            $rawGender    = strtolower($get($row, 'gender'));
+            $rawType      = strtolower($get($row, 'product_type'));
+            $size         = $get($row, 'size');
+            $color        = $get($row, 'color');
 
             // Auto-detect: explicit value wins; blank → simple if no size+color, else variable
             if ($rawType === 'simple' || $rawType === 'variable') {
@@ -137,16 +144,16 @@ class ProductImportController extends Controller
             }
 
             $data = [
-                'product_name'   => trim($row[0] ?? ''),
-                'category'       => trim($row[1] ?? ''),
-                'sku'            => trim($row[2] ?? ''),
-                'barcode'        => trim($row[3] ?? '') ?: null,
-                'description'    => trim($row[4] ?? '') ?: null,
+                'product_name'   => $get($row, 'product_name'),
+                'category'       => $get($row, 'category'),
+                'sku'            => $get($row, 'sku'),
+                'barcode'        => $get($row, 'barcode') ?: null,
+                'description'    => $get($row, 'description') ?: null,
                 'size'           => $size,
                 'color'          => $color,
-                'price'          => trim($row[7] ?? ''),
-                'cost_price'     => trim($row[8] ?? '') ?: 0,
-                'stock_quantity' => trim($row[9] ?? ''),
+                'price'          => $get($row, 'price'),
+                'cost_price'     => $get($row, 'cost_price') ?: 0,
+                'stock_quantity' => $get($row, 'stock_quantity'),
                 'gender'         => in_array($rawGender, $validGenders) ? $rawGender : null,
                 'product_type'   => $productType,
             ];
@@ -158,21 +165,13 @@ class ProductImportController extends Controller
             if (!is_numeric($data['price']) || $data['price'] < 0) $rowErrors[] = 'Invalid price';
             if (!is_numeric($data['stock_quantity']) || $data['stock_quantity'] < 0) $rowErrors[] = 'Invalid stock';
 
-            // Resolve category — auto-create if named, fall back to Uncategorized if blank
+            // Resolve category — match existing only, fall back to Uncategorized if blank or not found
             $catKey = strtolower($data['category']);
-            if (!empty($data['category']) && !isset($categories[$catKey])) {
-                $newCat = Category::firstOrCreate(
-                    ['name' => $data['category']],
-                    ['is_active' => true]
-                );
-                $categories[$catKey] = $newCat->id;
-            }
-            $catId = !empty($catKey) ? ($categories[$catKey] ?? $uncategorizedId) : $uncategorizedId;
+            $catId  = (!empty($catKey) && isset($categories[$catKey])) ? $categories[$catKey] : $uncategorizedId;
 
-            $data['category_id']     = $catId;
-            $data['is_new_category'] = isset($newCat) && $newCat->wasRecentlyCreated ? $data['category'] : null;
-            $data['is_uncategorized'] = empty($data['category']);
-            unset($newCat);
+            $data['category_id']      = $catId;
+            $data['is_new_category']  = false;
+            $data['is_uncategorized'] = empty($data['category']) || !isset($categories[$catKey]);
             $data['row']        = $rowNum;
             $data['errors']     = $rowErrors;
             $data['is_new_sku'] = !in_array(strtolower($data['sku']), $existingSkus);
@@ -211,16 +210,9 @@ class ProductImportController extends Controller
         foreach ($rows as $row) {
             if (!empty($row['errors'])) { $skipped++; continue; }
 
-            // Resolve category — auto-create if named, fall back to Uncategorized if blank
+            // Resolve category — match existing only, fall back to Uncategorized if blank or not found
             $catKey = strtolower($row['category']);
-            if (!empty($row['category']) && !isset($categories[$catKey])) {
-                $newCat = Category::firstOrCreate(
-                    ['name' => $row['category']],
-                    ['is_active' => true]
-                );
-                $categories[$catKey] = $newCat->id;
-            }
-            $catId = !empty($catKey) ? ($categories[$catKey] ?? $uncategorizedId) : $uncategorizedId;
+            $catId  = (!empty($catKey) && isset($categories[$catKey])) ? $categories[$catKey] : $uncategorizedId;
 
             $isSimple = ($row['product_type'] ?? 'variable') === 'simple';
 

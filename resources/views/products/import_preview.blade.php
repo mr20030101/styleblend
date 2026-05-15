@@ -92,9 +92,6 @@
                                 <span class="text-gray-400 italic">Uncategorized</span>
                             @else
                                 {{ $row['category'] }}
-                                @if($row['is_new_category'])
-                                    <span class="ml-1 bg-blue-100 text-blue-600 px-1 rounded text-xs">new</span>
-                                @endif
                             @endif
                         </td>
                         <td class="px-3 py-2 font-mono text-gray-600">
