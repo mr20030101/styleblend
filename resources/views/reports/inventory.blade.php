@@ -43,7 +43,7 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 font-medium text-gray-800">{{ $v->product->name }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $v->product->category->name }}</td>
-                    <td class="px-4 py-3 text-gray-400 font-mono text-xs">{{ $v->sku }}</td>
+                    <td class="px-4 py-3 text-gray-400 font-mono text-xs">{{ trim($v->sku ?? '', '-') ?: trim($v->product->sku . ($v->size ? '-' . $v->size : ''), '-') }}</td>
                     <td class="px-4 py-3">{{ $v->size }}</td>
                     <td class="px-4 py-3">{{ $v->color }}</td>
                     <td class="px-4 py-3 text-right">₱{{ number_format($v->price, 2) }}</td>

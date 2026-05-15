@@ -58,7 +58,7 @@
                     <td class="px-4 py-3 font-medium text-gray-800">{{ $v->product->name }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $v->product->category->name }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $v->size }} / {{ $v->color }}</td>
-                    <td class="px-4 py-3 text-gray-400 font-mono text-xs">{{ $v->sku ?: $v->product->sku . ($v->size ? '-' . $v->size : '') }}</td>
+                    <td class="px-4 py-3 text-gray-400 font-mono text-xs">{{ trim($v->sku ?? '', '-') ?: trim($v->product->sku . ($v->size ? '-' . $v->size : ''), '-') }}</td>
                     <td class="px-4 py-3 text-right font-medium">₱{{ number_format($v->price, 2) }}</td>
                     <td class="px-4 py-3 text-center">
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold
