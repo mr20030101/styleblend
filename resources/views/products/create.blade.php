@@ -29,6 +29,9 @@
                         <option value="">Select category</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                            @foreach($cat->children as $child)
+                                <option value="{{ $child->id }}" {{ old('category_id') == $child->id ? 'selected' : '' }}>— {{ $child->name }}</option>
+                            @endforeach
                         @endforeach
                     </select>
                 </div>
@@ -38,6 +41,15 @@
                         <option value="">Select brand (optional)</option>
                         @foreach($brands as $brand)
                             <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select name="gender" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                        <option value="">Not specified</option>
+                        @foreach(\App\Models\Product::GENDERS as $val => $label)
+                            <option value="{{ $val }}" {{ old('gender') == $val ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>

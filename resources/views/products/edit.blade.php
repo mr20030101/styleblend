@@ -28,6 +28,9 @@
                     <select name="category_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                            @foreach($cat->children as $child)
+                                <option value="{{ $child->id }}" {{ $product->category_id == $child->id ? 'selected' : '' }}>— {{ $child->name }}</option>
+                            @endforeach
                         @endforeach
                     </select>
                 </div>
@@ -48,6 +51,15 @@
                     @endif
                     <input type="file" name="image" accept="image/*"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select name="gender" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                        <option value="">Not specified</option>
+                        @foreach(\App\Models\Product::GENDERS as $val => $label)
+                            <option value="{{ $val }}" {{ old('gender', $product->gender) == $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>

@@ -19,6 +19,15 @@
             <option value="">All Categories</option>
             @foreach($categories as $cat)
                 <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                @foreach($cat->children as $child)
+                    <option value="{{ $child->id }}" {{ request('category_id') == $child->id ? 'selected' : '' }}>— {{ $child->name }}</option>
+                @endforeach
+            @endforeach
+        </select>
+        <select name="gender" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+            <option value="">All Genders</option>
+            @foreach(\App\Models\Product::GENDERS as $val => $label)
+                <option value="{{ $val }}" {{ request('gender') == $val ? 'selected' : '' }}>{{ $label }}</option>
             @endforeach
         </select>
         <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -31,7 +40,7 @@
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
         <div class="overflow-x-auto">
-        <table class="w-full min-w-[640px] text-sm">
+        <table class="w-full min-w-160 text-sm">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Product</th>
@@ -49,7 +58,7 @@
                     <td class="px-4 py-3 font-medium text-gray-800">{{ $v->product->name }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $v->product->category->name }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $v->size }} / {{ $v->color }}</td>
-                    <td class="px-4 py-3 text-gray-400 font-mono text-xs">{{ $v->sku }}</td>
+                    <td class="px-4 py-3 text-gray-400 font-mono text-xs">{{ $v->sku ?: $v->product->sku . ($v->size ? '-' . $v->size : '') }}</td>
                     <td class="px-4 py-3 text-right font-medium">₱{{ number_format($v->price, 2) }}</td>
                     <td class="px-4 py-3 text-center">
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold
@@ -81,7 +90,8 @@
 </div>
 
 <!-- Adjust Modal -->
-<div id="adjust-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+<div id="adjust-modal" class="fixed inset-0 bg-black/50 z-40 hidden">
+    <div class="flex items-center justify-center h-full">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
         <h3 class="font-bold text-lg mb-1">Stock Adjustment</h3>
         <p class="text-sm text-gray-500 mb-4" id="adjust-product-name"></p>
@@ -115,16 +125,19 @@
             </div>
         </div>
     </div>
+    </div>
 </div>
 
 <!-- History Modal -->
-<div id="history-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+<div id="history-modal" class="fixed inset-0 bg-black/50 z-40 hidden">
+    <div class="flex items-center justify-center h-full">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-lg">Stock History</h3>
             <button onclick="$('#history-modal').addClass('hidden')" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
         </div>
         <div id="history-content" class="max-h-96 overflow-y-auto space-y-2 text-sm"></div>
+    </div>
     </div>
 </div>
 @endsection

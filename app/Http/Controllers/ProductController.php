@@ -23,15 +23,18 @@ class ProductController extends Controller
         if ($request->brand_id) {
             $query->where('brand_id', $request->brand_id);
         }
+        if ($request->gender) {
+            $query->where('gender', $request->gender);
+        }
         $products = $query->orderBy('name')->paginate(15)->withQueryString();
-        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        $categories = Category::with('children')->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
         return view('products.index', compact('products', 'categories', 'brands'));
     }
 
     public function create()
     {
-        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        $categories = Category::with('children')->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
         return view('products.create', compact('categories', 'brands'));
     }
@@ -39,18 +42,19 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:200',
-            'category_id' => 'required|exists:categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'sku' => 'required|string|unique:products,sku',
-            'barcode' => 'nullable|string|unique:products,barcode',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'variants' => 'required|array|min:1',
-            'variants.*.size' => 'required|string',
-            'variants.*.color' => 'required|string',
-            'variants.*.price' => 'required|numeric|min:0',
-            'variants.*.stock_quantity' => 'required|integer|min:0',
+            'name'                       => 'required|string|max:200',
+            'category_id'                => 'required|exists:categories,id',
+            'brand_id'                   => 'nullable|exists:brands,id',
+            'gender'                     => 'nullable|in:men,women,kids,unisex',
+            'sku'                        => 'required|string|unique:products,sku',
+            'barcode'                    => 'nullable|string|unique:products,barcode',
+            'description'                => 'nullable|string',
+            'image'                      => 'nullable|image|max:2048',
+            'variants'                   => 'required|array|min:1',
+            'variants.*.size'            => 'required|string',
+            'variants.*.color'           => 'required|string',
+            'variants.*.price'           => 'required|numeric|min:0',
+            'variants.*.stock_quantity'  => 'required|integer|min:0',
         ]);
 
         if ($request->hasFile('image')) {
@@ -125,20 +129,49 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product->load('variants');
-        $categories = Category::where('is_active', true)->orderBy('name')->get();
-        return view('products.edit', compact('product', 'categories'));
+        $categories = Category::with('children')->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get();
+        $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'id'          => $product->id,
+                'name'        => $product->name,
+                'sku'         => $product->sku,
+                'barcode'     => $product->barcode,
+                'description' => $product->description,
+                'is_active'   => $product->is_active,
+                'category_id' => $product->category_id,
+                'brand_id'    => $product->brand_id,
+                'gender'      => $product->gender,
+                'image_url'   => $product->image_url,
+                'has_image'   => (bool) $product->image,
+                'variants'    => $product->variants->map(fn($v) => [
+                    'id'             => $v->id,
+                    'size'           => $v->size,
+                    'color'          => $v->color,
+                    'price'          => (float) $v->price,
+                    'cost_price'     => (float) ($v->cost_price ?? 0),
+                    'stock_quantity' => $v->stock_quantity,
+                    'sku'            => $v->sku,
+                ]),
+            ]);
+        }
+
+        return view('products.edit', compact('product', 'categories', 'brands'));
     }
 
     public function update(Request $request, Product $product)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:200',
+            'name'        => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
-            'sku' => 'required|string|unique:products,sku,' . $product->id,
-            'barcode' => 'nullable|string|unique:products,barcode,' . $product->id,
+            'brand_id'    => 'nullable|exists:brands,id',
+            'gender'      => 'nullable|in:men,women,kids,unisex',
+            'sku'         => 'required|string|unique:products,sku,' . $product->id,
+            'barcode'     => 'nullable|string|unique:products,barcode,' . $product->id,
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'is_active' => 'boolean',
+            'image'       => 'nullable|image|max:2048',
+            'is_active'   => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -147,6 +180,10 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 

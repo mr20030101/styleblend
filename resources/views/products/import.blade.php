@@ -18,7 +18,7 @@
             <li>Download the CSV template below</li>
             <li><strong class="text-gray-800">One row = one variant.</strong> For a product with multiple sizes/colors, repeat the same SKU on multiple rows — one per variant</li>
             <li>Example: Dress with S/Red, M/Red, L/Blue = 3 rows, all with the same SKU</li>
-            <li>Category must match an existing category name exactly (case-insensitive)</li>
+            <li><strong class="text-gray-800">Category is optional.</strong> Leave it blank to assign to <em>Uncategorized</em>. If a category name is provided that doesn't exist yet, it will be created automatically</li>
             <li>Size must be one of: <code class="bg-gray-100 px-1 rounded">XS, S, M, L, XL</code></li>
             <li>If a SKU already exists, the product info is updated and variants are upserted (not duplicated)</li>
             <li>Upload the file and review the preview before confirming</li>

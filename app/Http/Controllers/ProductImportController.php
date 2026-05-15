@@ -28,7 +28,7 @@ class ProductImportController extends Controller
             // Header row
             fputcsv($file, [
                 'product_name',   // required
-                'category',       // required — created automatically if it doesn't exist
+                'category',       // optional — defaults to Uncategorized if blank; auto-created if new name
                 'sku',            // required — unique
                 'barcode',        // optional
                 'description',    // optional
@@ -39,15 +39,15 @@ class ProductImportController extends Controller
                 'stock_quantity', // required
             ]);
             // Example rows — same SKU = same product, different rows = different variants
-            fputcsv($file, ['Floral Dress', 'Women', 'WD-002', '', 'Summer dress', 'S', 'Red', '29.99', '15.00', '10']);
-            fputcsv($file, ['Floral Dress', 'Women', 'WD-002', '', 'Summer dress', 'M', 'Red', '29.99', '15.00', '8']);
-            fputcsv($file, ['Floral Dress', 'Women', 'WD-002', '', 'Summer dress', 'L', 'Blue', '34.99', '15.00', '5']);
-            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'S', 'Black', '14.99', '7.00', '20']);
-            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'M', '', '14.99', '7.00', '25']);
-            fputcsv($file, ['Classic T-Shirt', 'Men', 'MT-002', '1234567890', '', 'L', '', '14.99', '7.00', '15']);
-            fputcsv($file, ['Kids Polo', 'Kids', 'KP-002', '', '', '2T', 'Yellow', '12.99', '6.00', '10']);
-            fputcsv($file, ['Jeans', 'Men', 'MJ-001', '', '', '28', '', '49.99', '25.00', '12']);
-            fputcsv($file, ['Jeans', 'Men', 'MJ-001', '', '', '30', '', '49.99', '25.00', '10']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'S', 'Red', '29.99', '15.00', '10']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'M', 'Red', '29.99', '15.00', '8']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'L', 'Blue', '34.99', '15.00', '5']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'S', 'Black', '14.99', '7.00', '20']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'M', '', '14.99', '7.00', '25']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'L', '', '14.99', '7.00', '15']);
+            fputcsv($file, ['Kids Polo', 'Polo', 'PL-001', '', '', '2T', 'Yellow', '12.99', '6.00', '10']);
+            fputcsv($file, ['Slim Pants', 'Pants', 'PT-001', '', '', '28', 'Navy', '49.99', '25.00', '12']);
+            fputcsv($file, ['No Category Product', '', 'NC-001', '', '', 'Free Size', 'White', '9.99', '5.00', '30']);
             fclose($file);
         };
 
@@ -68,6 +68,13 @@ class ProductImportController extends Controller
 
         $categories   = Category::pluck('id', 'name')->mapWithKeys(fn($id, $name) => [strtolower($name) => $id]);
         $existingSkus = Product::pluck('sku')->map(fn($s) => strtolower($s))->toArray();
+
+        // Ensure Uncategorized exists as fallback
+        $uncategorized = Category::firstOrCreate(
+            ['slug' => 'uncategorized'],
+            ['name' => 'Uncategorized', 'is_active' => true]
+        );
+        $uncategorizedId = $uncategorized->id;
 
         while (($row = fgetcsv($handle)) !== false) {
             $rowNum++;
@@ -93,7 +100,7 @@ class ProductImportController extends Controller
             if (!is_numeric($data['price']) || $data['price'] < 0) $rowErrors[] = 'Invalid price';
             if (!is_numeric($data['stock_quantity']) || $data['stock_quantity'] < 0) $rowErrors[] = 'Invalid stock';
 
-            // Auto-create category if it doesn't exist
+            // Resolve category — auto-create if named, fall back to Uncategorized if blank
             $catKey = strtolower($data['category']);
             if (!empty($data['category']) && !isset($categories[$catKey])) {
                 $newCat = Category::firstOrCreate(
@@ -102,15 +109,15 @@ class ProductImportController extends Controller
                 );
                 $categories[$catKey] = $newCat->id;
             }
-            $catId = $categories[$catKey] ?? null;
-            if (!$catId) $rowErrors[] = 'Category required';
+            $catId = !empty($catKey) ? ($categories[$catKey] ?? $uncategorizedId) : $uncategorizedId;
 
-            $data['category_id']  = $catId;
+            $data['category_id']     = $catId;
             $data['is_new_category'] = isset($newCat) && $newCat->wasRecentlyCreated ? $data['category'] : null;
+            $data['is_uncategorized'] = empty($data['category']);
             unset($newCat);
-            $data['row']         = $rowNum;
-            $data['errors']      = $rowErrors;
-            $data['is_new_sku']  = !in_array(strtolower($data['sku']), $existingSkus);
+            $data['row']        = $rowNum;
+            $data['errors']     = $rowErrors;
+            $data['is_new_sku'] = !in_array(strtolower($data['sku']), $existingSkus);
 
             $rows[] = $data;
             if (!empty($rowErrors)) $errors[] = "Row {$rowNum}: " . implode(', ', $rowErrors);
@@ -136,10 +143,17 @@ class ProductImportController extends Controller
         $skipped    = 0;
         $categories = Category::pluck('id', 'name')->mapWithKeys(fn($id, $name) => [strtolower($name) => $id]);
 
+        // Ensure Uncategorized exists as fallback
+        $uncategorized = Category::firstOrCreate(
+            ['slug' => 'uncategorized'],
+            ['name' => 'Uncategorized', 'is_active' => true]
+        );
+        $uncategorizedId = $uncategorized->id;
+
         foreach ($rows as $row) {
             if (!empty($row['errors'])) { $skipped++; continue; }
 
-            // Auto-create category if it doesn't exist
+            // Resolve category — auto-create if named, fall back to Uncategorized if blank
             $catKey = strtolower($row['category']);
             if (!empty($row['category']) && !isset($categories[$catKey])) {
                 $newCat = Category::firstOrCreate(
@@ -148,8 +162,7 @@ class ProductImportController extends Controller
                 );
                 $categories[$catKey] = $newCat->id;
             }
-            $catId = $categories[$catKey] ?? null;
-            if (!$catId) { $skipped++; continue; }
+            $catId = !empty($catKey) ? ($categories[$catKey] ?? $uncategorizedId) : $uncategorizedId;
 
             // Find or create product by SKU
             $product = Product::firstOrCreate(

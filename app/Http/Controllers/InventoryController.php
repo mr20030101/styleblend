@@ -22,12 +22,15 @@ class InventoryController extends Controller
         if ($request->category_id) {
             $query->whereHas('product', fn($q) => $q->where('category_id', $request->category_id));
         }
+        if ($request->gender) {
+            $query->whereHas('product', fn($q) => $q->where('gender', $request->gender));
+        }
         if ($request->low_stock) {
             $query->where('stock_quantity', '<=', 5);
         }
 
         $variants = $query->orderBy('stock_quantity')->paginate(20)->withQueryString();
-        $categories = \App\Models\Category::where('is_active', true)->get();
+        $categories = \App\Models\Category::with('children')->whereNull('parent_id')->where('is_active', true)->orderBy('name')->get();
         $lowStockCount = ProductVariant::where('stock_quantity', '<=', 5)->count();
 
         return view('inventory.index', compact('variants', 'categories', 'lowStockCount'));
