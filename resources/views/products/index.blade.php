@@ -60,7 +60,7 @@
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Brand</th>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">Gender</th>
                     <th class="text-left px-4 py-3 font-semibold text-gray-600">SKU</th>
-                    <th class="text-center px-4 py-3 font-semibold text-gray-600">Variants</th>
+                    <th class="text-center px-4 py-3 font-semibold text-gray-600">Type</th>
                     <th class="text-center px-4 py-3 font-semibold text-gray-600">Total Stock</th>
                     <th class="text-center px-4 py-3 font-semibold text-gray-600">Status</th>
                     <th class="text-center px-4 py-3 font-semibold text-gray-600">Actions</th>
@@ -87,7 +87,13 @@
                         @endif
                     </td>
                     <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ $product->sku }}</td>
-                    <td class="px-4 py-3 text-center">{{ $product->variants->count() }}</td>
+                    <td class="px-4 py-3 text-center">
+                        @if($product->product_type === 'simple')
+                            <span class="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">Simple</span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-full text-xs bg-purple-100 text-purple-700">{{ $product->variants->count() }} variants</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-center">
                         <span class="{{ $product->total_stock <= 5 ? 'text-gray-700 font-bold' : 'text-gray-700' }}">
                             {{ $product->total_stock }}

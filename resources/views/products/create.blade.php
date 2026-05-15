@@ -15,6 +15,33 @@
 
     <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
+
+        {{-- Product Type --}}
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="font-semibold text-gray-700 border-b pb-2 mb-4">Product Type</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <label id="type-simple-card"
+                    class="relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition type-card border-brand bg-brand/5">
+                    <input type="radio" name="product_type" value="simple" checked
+                        class="mt-1 accent-brand" onchange="switchType('simple')">
+                    <div>
+                        <p class="font-semibold text-gray-800">Simple Product</p>
+                        <p class="text-xs text-gray-500 mt-0.5">One price, one stock level. No size or color variants needed.</p>
+                    </div>
+                </label>
+                <label id="type-variable-card"
+                    class="relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition type-card border-gray-200">
+                    <input type="radio" name="product_type" value="variable"
+                        class="mt-1 accent-brand" onchange="switchType('variable')">
+                    <div>
+                        <p class="font-semibold text-gray-800">Variable Product</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Multiple variants with different sizes, colors, prices, or stock.</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        {{-- Product Information --}}
         <div class="bg-white rounded-xl shadow p-6 space-y-4">
             <h3 class="font-semibold text-gray-700 border-b pb-2">Product Information</h3>
             <div class="grid grid-cols-2 gap-4">
@@ -76,17 +103,38 @@
             </div>
         </div>
 
-        <!-- Variants -->
-        <div class="bg-white rounded-xl shadow p-6">
+        {{-- Simple product fields --}}
+        <div id="simple-section" class="bg-white rounded-xl shadow p-6 space-y-4">
+            <h3 class="font-semibold text-gray-700 border-b pb-2">Pricing & Stock</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                    <input type="number" name="simple_price" value="{{ old('simple_price') }}" min="0" step="0.01" placeholder="0.00"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
+                    <input type="number" name="simple_cost_price" value="{{ old('simple_cost_price') }}" min="0" step="0.01" placeholder="0.00"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity *</label>
+                    <input type="number" name="simple_stock_quantity" value="{{ old('simple_stock_quantity') }}" min="0" placeholder="0"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+            </div>
+        </div>
+
+        {{-- Variable product variants --}}
+        <div id="variable-section" class="bg-white rounded-xl shadow p-6 hidden">
             <div class="flex justify-between items-center border-b pb-2 mb-4">
-                <h3 class="font-semibold text-gray-700">Product Variants</h3>
+                <h3 class="font-semibold text-gray-700">Variants</h3>
                 <button type="button" onclick="addVariantRow()" class="bg-brand hover:bg-brand-dark text-white px-3 py-1.5 rounded-lg text-sm transition">
                     <i class="fas fa-plus mr-1"></i> Add Variant
                 </button>
             </div>
-            <div id="variants-container" class="space-y-3">
-                <!-- Variant rows added by JS -->
-            </div>
+            <div id="variants-container" class="space-y-3"></div>
+            <p class="text-xs text-gray-400 mt-3">At least one variant is required.</p>
         </div>
 
         <div class="flex gap-3">
@@ -100,18 +148,30 @@
 @endsection
 @push('scripts')
 <script>
-const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 let variantCount = 0;
+
+function switchType(type) {
+    const isSimple = type === 'simple';
+    document.getElementById('simple-section').classList.toggle('hidden', !isSimple);
+    document.getElementById('variable-section').classList.toggle('hidden', isSimple);
+    document.getElementById('type-simple-card').classList.toggle('border-brand', isSimple);
+    document.getElementById('type-simple-card').classList.toggle('bg-brand/5', isSimple);
+    document.getElementById('type-simple-card').classList.toggle('border-gray-200', !isSimple);
+    document.getElementById('type-variable-card').classList.toggle('border-brand', !isSimple);
+    document.getElementById('type-variable-card').classList.toggle('bg-brand/5', !isSimple);
+    document.getElementById('type-variable-card').classList.toggle('border-gray-200', isSimple);
+}
 
 function addVariantRow() {
     const idx = variantCount++;
     const html = `
-    <div class="variant-row grid grid-cols-5 gap-3 items-end bg-gray-50 p-3 rounded-lg" id="variant-${idx}">
+    <div class="variant-row grid grid-cols-6 gap-3 items-end bg-gray-50 p-3 rounded-lg" id="variant-${idx}">
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Size *</label>
-            <select name="variants[${idx}][size]" required class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand">
-                ${sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
-            </select>
+            <input type="text" name="variants[${idx}][size]" required placeholder="e.g. M"
+                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand"
+                list="size-suggestions">
         </div>
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Color *</label>
@@ -121,6 +181,11 @@ function addVariantRow() {
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Price *</label>
             <input type="number" name="variants[${idx}][price]" required min="0" step="0.01" placeholder="0.00"
+                class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Cost</label>
+            <input type="number" name="variants[${idx}][cost_price]" min="0" step="0.01" placeholder="0.00"
                 class="w-full border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand">
         </div>
         <div>
@@ -138,7 +203,7 @@ function addVariantRow() {
     $('#variants-container').append(html);
 }
 
-// Add one row by default
-addVariantRow();
+// Size datalist suggestion
+$('body').append('<datalist id="size-suggestions"><option value="XS"><option value="S"><option value="M"><option value="L"><option value="XL"><option value="XXL"><option value="Free Size"></datalist>');
 </script>
 @endpush

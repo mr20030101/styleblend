@@ -19,39 +19,28 @@ class ProductImportController extends Controller
 
         $callback = function () {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['product_name', 'category', 'sku', 'barcode', 'description', 'size', 'color', 'price', 'cost_price', 'stock_quantity', 'gender']);
+            fputcsv($file, ['product_name', 'category', 'sku', 'barcode', 'description', 'size', 'color', 'price', 'cost_price', 'stock_quantity', 'gender', 'product_type']);
 
             $products = Product::with(['category', 'variants'])->orderBy('name')->get();
             foreach ($products as $product) {
+                $type = $product->product_type ?? 'variable';
                 if ($product->variants->isEmpty()) {
-                    fputcsv($file, [
-                        $product->name,
-                        $product->category->name ?? '',
-                        $product->sku,
-                        $product->barcode ?? '',
-                        $product->description ?? '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        $product->gender ?? '',
-                    ]);
+                    fputcsv($file, [$product->name, $product->category->name ?? '', $product->sku, $product->barcode ?? '', $product->description ?? '', '', '', '', '', '', $product->gender ?? '', $type]);
                 } else {
                     foreach ($product->variants as $variant) {
-                        $variantSku = trim($variant->sku ?? '', '-') ?: trim($product->sku . ($variant->size ? '-' . $variant->size : ''), '-');
                         fputcsv($file, [
                             $product->name,
                             $product->category->name ?? '',
                             $product->sku,
                             $product->barcode ?? '',
                             $product->description ?? '',
-                            $variant->size ?? '',
-                            $variant->color ?? '',
+                            $type === 'simple' ? '' : ($variant->size ?? ''),
+                            $type === 'simple' ? '' : ($variant->color ?? ''),
                             $variant->price,
                             $variant->cost_price ?? '',
                             $variant->stock_quantity,
                             $product->gender ?? '',
+                            $type,
                         ]);
                     }
                 }
@@ -84,23 +73,24 @@ class ProductImportController extends Controller
                 'sku',            // required — unique
                 'barcode',        // optional
                 'description',    // optional
-                'size',           // optional — any value e.g. XS, S, M, L, XL, XXL, 28, 30, Free Size
-                'color',          // optional
+                'size',           // leave blank for simple products
+                'color',          // leave blank for simple products
                 'price',          // required
                 'cost_price',     // optional
                 'stock_quantity', // required
                 'gender',         // optional — men, women, kids, unisex
+                'product_type',   // simple or variable (auto-detected if blank)
             ]);
-            // Example rows — same SKU = same product, different rows = different variants
-            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'S', 'Red', '29.99', '15.00', '10', 'women']);
-            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'M', 'Red', '29.99', '15.00', '8', 'women']);
-            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'L', 'Blue', '34.99', '15.00', '5', 'women']);
-            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'S', 'Black', '14.99', '7.00', '20', 'men']);
-            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'M', '', '14.99', '7.00', '25', 'men']);
-            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'L', '', '14.99', '7.00', '15', 'men']);
-            fputcsv($file, ['Kids Polo', 'Polo', 'PL-001', '', '', '2T', 'Yellow', '12.99', '6.00', '10', 'kids']);
-            fputcsv($file, ['Slim Pants', 'Pants', 'PT-001', '', '', '28', 'Navy', '49.99', '25.00', '12', 'unisex']);
-            fputcsv($file, ['No Category Product', '', 'NC-001', '', '', 'Free Size', 'White', '9.99', '5.00', '30', '']);
+            // Simple product — one row, no size/color
+            fputcsv($file, ['Plain White Tee', 'T-shirt', 'WT-001', '', 'Basic white tee', '', '', '149.00', '70.00', '50', 'unisex', 'simple']);
+            fputcsv($file, ['Leather Belt', 'Accessories', 'BT-001', '9876543210', 'Genuine leather', '', '', '299.00', '120.00', '30', 'unisex', 'simple']);
+            // Variable product — multiple rows per SKU, each row = one variant
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'S', 'Red', '599.00', '250.00', '10', 'women', 'variable']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'M', 'Red', '599.00', '250.00', '8', 'women', 'variable']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'L', 'Blue', '599.00', '250.00', '5', 'women', 'variable']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'S', 'Black', '299.00', '120.00', '20', 'men', 'variable']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'M', 'Black', '299.00', '120.00', '25', 'men', 'variable']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'L', 'Black', '299.00', '120.00', '15', 'men', 'variable']);
             fclose($file);
         };
 

@@ -5,6 +5,11 @@
     <div class="flex items-center gap-3 mb-6">
         <a href="{{ route('products.index') }}" class="text-gray-400 hover:text-gray-600"><i class="fas fa-arrow-left"></i></a>
         <h2 class="text-2xl font-bold text-gray-800">Edit Product</h2>
+        @if($product->product_type === 'simple')
+            <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">Simple</span>
+        @else
+            <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-2.5 py-1 rounded-full">Variable</span>
+        @endif
     </div>
 
     @if($errors->any())
@@ -31,6 +36,15 @@
                             @foreach($cat->children as $child)
                                 <option value="{{ $child->id }}" {{ $product->category_id == $child->id ? 'selected' : '' }}>— {{ $child->name }}</option>
                             @endforeach
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+                    <select name="brand_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                        <option value="">Select brand (optional)</option>
+                        @foreach($brands as $brand)
+                            <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -76,6 +90,31 @@
             </div>
         </div>
 
+        @if($product->product_type === 'simple')
+        {{-- Simple product: price/cost/stock --}}
+        @php $sv = $product->variants->first(); @endphp
+        <div class="bg-white rounded-xl shadow p-6 space-y-4">
+            <h3 class="font-semibold text-gray-700 border-b pb-2">Pricing & Stock</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                    <input type="number" name="simple_price" value="{{ old('simple_price', $sv?->price ?? '') }}" min="0" step="0.01" placeholder="0.00" required
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
+                    <input type="number" name="simple_cost_price" value="{{ old('simple_cost_price', $sv?->cost_price ?? '') }}" min="0" step="0.01" placeholder="0.00"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity *</label>
+                    <input type="number" name="simple_stock_quantity" value="{{ old('simple_stock_quantity', $sv?->stock_quantity ?? '') }}" min="0" placeholder="0" required
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="flex gap-3">
             <button type="submit" class="bg-brand hover:bg-brand-dark text-white px-6 py-2.5 rounded-lg font-medium transition">Update Product</button>
             <a href="{{ route('products.barcodes', $product) }}" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition">
@@ -85,7 +124,8 @@
         </div>
     </form>
 
-    <!-- Variants Management -->
+    @if($product->product_type === 'variable')
+    {{-- Variable product: variant management --}}
     <div class="bg-white rounded-xl shadow p-6 mt-6">
         <div class="flex justify-between items-center border-b pb-2 mb-4">
             <h3 class="font-semibold text-gray-700">Variants</h3>
@@ -98,74 +138,79 @@
             @foreach($product->variants as $v)
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg" id="vrow-{{ $v->id }}">
                 <div class="flex-1 grid grid-cols-5 gap-3 text-sm">
-                    <span class="font-medium">{{ $v->size }} / {{ $v->color }}</span>
+                    <span class="font-medium">{{ $v->size }}{{ $v->size && $v->color ? ' / ' : '' }}{{ $v->color }}</span>
                     <span class="text-gray-900 font-bold">₱{{ number_format($v->price, 2) }}</span>
-                    <span class="text-gray-500 text-xs">Cost: ₱{{ number_format($v->cost_price, 2) }}</span>
+                    <span class="text-gray-500 text-xs">Cost: ₱{{ number_format($v->cost_price ?? 0, 2) }}</span>
                     <span class="{{ $v->stock_quantity <= 5 ? 'text-red-600 font-bold' : 'text-gray-600' }}">{{ $v->stock_quantity }} in stock</span>
-                    @php $margin = $v->price > 0 ? (($v->price - $v->cost_price) / $v->price) * 100 : 0; @endphp
+                    @php $margin = $v->price > 0 ? (($v->price - ($v->cost_price ?? 0)) / $v->price) * 100 : 0; @endphp
                     <span class="text-xs font-medium {{ $margin >= 30 ? 'text-gray-700' : ($margin > 0 ? 'text-yellow-600' : 'text-gray-400') }}">
                         {{ number_format($margin, 1) }}% margin
                     </span>
                 </div>
-                <button onclick="editVariant({{ $v->id }}, '{{ $v->size }}', '{{ $v->color }}', {{ $v->price }}, {{ $v->cost_price ?? 0 }}, {{ $v->stock_quantity }})"
+                <button onclick="editVariant({{ $v->id }}, '{{ addslashes($v->size) }}', '{{ addslashes($v->color) }}', {{ $v->price }}, {{ $v->cost_price ?? 0 }}, {{ $v->stock_quantity }})"
                     class="text-gray-900 hover:text-indigo-800 text-sm px-2"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteVariant({{ $v->id }})" class="text-gray-600 hover:text-gray-700 text-sm px-2"><i class="fas fa-trash"></i></button>
+                <button onclick="deleteVariant({{ $v->id }})" class="text-gray-600 hover:text-red-500 text-sm px-2"><i class="fas fa-trash"></i></button>
             </div>
             @endforeach
         </div>
     </div>
-</div>
 
-<!-- Add/Edit Variant Modal -->
-<div id="variant-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-        <h3 class="font-bold text-lg mb-4" id="variant-modal-title">Add Variant</h3>
-        <div class="space-y-3">
-            <input type="hidden" id="edit-variant-id">
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                    <input type="text" id="v-size" placeholder="e.g. M, L, 28, 6Y"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+    <!-- Add/Edit Variant Modal -->
+    <div id="variant-modal" class="fixed inset-0 bg-black/50 z-40 hidden">
+        <div class="flex items-center justify-center h-full">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <h3 class="font-bold text-lg mb-4" id="variant-modal-title">Add Variant</h3>
+            <div class="space-y-3">
+                <input type="hidden" id="edit-variant-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                        <input type="text" id="v-size" placeholder="e.g. M, L, 28"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                        <input type="text" id="v-color" placeholder="e.g. Red"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                        <input type="number" id="v-price" min="0" step="0.01" placeholder="0.00"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
+                        <input type="number" id="v-cost" min="0" step="0.01" placeholder="0.00"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                        <input type="number" id="v-stock" min="0" placeholder="0"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                    <input type="text" id="v-color" placeholder="e.g. Red"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                <div class="flex gap-3 pt-2">
+                    <button onclick="saveVariant()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
+                    <button onclick="$('#variant-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                    <input type="number" id="v-price" min="0" step="0.01" placeholder="0.00"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
-                    <input type="number" id="v-cost" min="0" step="0.01" placeholder="0.00"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                    <input type="number" id="v-stock" min="0" placeholder="0"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-                </div>
-            </div>
-            <div class="flex gap-3 pt-2">
-                <button onclick="saveVariant()" class="flex-1 bg-brand hover:bg-brand-dark text-white py-2 rounded-lg text-sm font-medium transition">Save</button>
-                <button onclick="$('#variant-modal').addClass('hidden')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">Cancel</button>
             </div>
         </div>
+        </div>
     </div>
+    @endif
 </div>
 @endsection
 @push('scripts')
 <script>
 const productId = {{ $product->id }};
 
+@if($product->product_type === 'variable')
 function showAddVariant() {
     $('#variant-modal-title').text('Add Variant');
     $('#edit-variant-id').val('');
     $('#v-size').val(''); $('#v-color').val(''); $('#v-price').val(''); $('#v-cost').val(''); $('#v-stock').val('');
     $('#variant-modal').removeClass('hidden');
+    setTimeout(() => $('#v-size').focus(), 100);
 }
 
 function editVariant(id, size, color, price, cost, stock) {
@@ -177,10 +222,13 @@ function editVariant(id, size, color, price, cost, stock) {
 
 function saveVariant() {
     const id = $('#edit-variant-id').val();
-    const data = { size: $('#v-size').val(), color: $('#v-color').val(), price: $('#v-price').val(), stock_quantity: $('#v-stock').val(), cost_price: $('#v-cost').val() || 0 };
+    const data = {
+        size: $('#v-size').val(), color: $('#v-color').val(),
+        price: $('#v-price').val(), stock_quantity: $('#v-stock').val(),
+        cost_price: $('#v-cost').val() || 0
+    };
     const url = id ? `/variants/${id}` : `/products/${productId}/variants`;
-    const method = id ? 'PUT' : 'POST';
-    $.ajax({ url, method, data,
+    $.ajax({ url, method: id ? 'PUT' : 'POST', data,
         success: () => { showToast('Variant saved.'); location.reload(); },
         error: (xhr) => showToast(xhr.responseJSON?.message || 'Error', 'error')
     });
@@ -194,5 +242,6 @@ function deleteVariant(id) {
         });
     });
 }
+@endif
 </script>
 @endpush

@@ -41,21 +41,33 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name'                       => 'required|string|max:200',
-            'category_id'                => 'required|exists:categories,id',
-            'brand_id'                   => 'nullable|exists:brands,id',
-            'gender'                     => 'nullable|in:men,women,kids,unisex',
-            'sku'                        => 'required|string|unique:products,sku',
-            'barcode'                    => 'nullable|string|unique:products,barcode',
-            'description'                => 'nullable|string',
-            'image'                      => 'nullable|image|max:2048',
-            'variants'                   => 'required|array|min:1',
-            'variants.*.size'            => 'required|string',
-            'variants.*.color'           => 'required|string',
-            'variants.*.price'           => 'required|numeric|min:0',
-            'variants.*.stock_quantity'  => 'required|integer|min:0',
-        ]);
+        $isSimple = $request->input('product_type') === 'simple';
+
+        $rules = [
+            'name'        => 'required|string|max:200',
+            'category_id' => 'required|exists:categories,id',
+            'brand_id'    => 'nullable|exists:brands,id',
+            'gender'      => 'nullable|in:men,women,kids,unisex',
+            'sku'         => 'required|string|unique:products,sku',
+            'barcode'     => 'nullable|string|unique:products,barcode',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|image|max:2048',
+            'product_type' => 'required|in:simple,variable',
+        ];
+
+        if ($isSimple) {
+            $rules['simple_price']         = 'required|numeric|min:0';
+            $rules['simple_cost_price']    = 'nullable|numeric|min:0';
+            $rules['simple_stock_quantity'] = 'required|integer|min:0';
+        } else {
+            $rules['variants']                  = 'required|array|min:1';
+            $rules['variants.*.size']           = 'required|string';
+            $rules['variants.*.color']          = 'required|string';
+            $rules['variants.*.price']          = 'required|numeric|min:0';
+            $rules['variants.*.stock_quantity'] = 'required|integer|min:0';
+        }
+
+        $data = $request->validate($rules);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
@@ -63,14 +75,28 @@ class ProductController extends Controller
 
         $product = Product::create($data);
 
-        foreach ($request->variants as $i => $v) {
+        if ($isSimple) {
             $product->variants()->create([
-                'size' => $v['size'],
-                'color' => $v['color'],
-                'price' => $v['price'],
-                'stock_quantity' => $v['stock_quantity'],
-                'sku' => $data['sku'] . '-' . $v['size'] . '-' . strtoupper(substr($v['color'], 0, 3)) . $i,
+                'size'           => '',
+                'color'          => '',
+                'price'          => $request->simple_price,
+                'cost_price'     => $request->simple_cost_price ?? 0,
+                'stock_quantity' => $request->simple_stock_quantity,
+                'sku'            => $data['sku'],
+                'is_active'      => true,
             ]);
+        } else {
+            foreach ($request->variants as $i => $v) {
+                $product->variants()->create([
+                    'size'           => $v['size'],
+                    'color'          => $v['color'],
+                    'price'          => $v['price'],
+                    'cost_price'     => $v['cost_price'] ?? 0,
+                    'stock_quantity' => $v['stock_quantity'],
+                    'sku'            => $data['sku'] . '-' . $v['size'] . '-' . strtoupper(substr($v['color'], 0, 3)) . $i,
+                    'is_active'      => true,
+                ]);
+            }
         }
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
@@ -133,17 +159,18 @@ class ProductController extends Controller
 
         if (request()->ajax()) {
             return response()->json([
-                'id'          => $product->id,
-                'name'        => $product->name,
-                'sku'         => $product->sku,
-                'barcode'     => $product->barcode,
-                'description' => $product->description,
-                'is_active'   => $product->is_active,
-                'category_id' => $product->category_id,
-                'brand_id'    => $product->brand_id,
-                'gender'      => $product->gender,
-                'image_url'   => $product->image_url,
-                'has_image'   => (bool) $product->image,
+                'id'           => $product->id,
+                'name'         => $product->name,
+                'sku'          => $product->sku,
+                'barcode'      => $product->barcode,
+                'description'  => $product->description,
+                'is_active'    => $product->is_active,
+                'product_type' => $product->product_type,
+                'category_id'  => $product->category_id,
+                'brand_id'     => $product->brand_id,
+                'gender'       => $product->gender,
+                'image_url'    => $product->image_url,
+                'has_image'    => (bool) $product->image,
                 'variants'    => $product->variants->map(fn($v) => [
                     'id'             => $v->id,
                     'size'           => $v->size,
@@ -161,7 +188,9 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $data = $request->validate([
+        $isSimple = $product->product_type === 'simple';
+
+        $rules = [
             'name'        => 'required|string|max:200',
             'category_id' => 'required|exists:categories,id',
             'brand_id'    => 'nullable|exists:brands,id',
@@ -171,7 +200,15 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'image'       => 'nullable|image|max:2048',
             'is_active'   => 'boolean',
-        ]);
+        ];
+
+        if ($isSimple) {
+            $rules['simple_price']          = 'required|numeric|min:0';
+            $rules['simple_cost_price']     = 'nullable|numeric|min:0';
+            $rules['simple_stock_quantity'] = 'required|integer|min:0';
+        }
+
+        $data = $request->validate($rules);
 
         if ($request->hasFile('image')) {
             if ($product->image) Storage::disk('public')->delete($product->image);
@@ -179,6 +216,22 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+
+        // For simple products, sync the single variant
+        if ($isSimple) {
+            $variant = $product->variants()->first();
+            $variantData = [
+                'price'          => $request->simple_price,
+                'cost_price'     => $request->simple_cost_price ?? 0,
+                'stock_quantity' => $request->simple_stock_quantity,
+                'sku'            => $data['sku'],
+            ];
+            if ($variant) {
+                $variant->update($variantData);
+            } else {
+                $product->variants()->create(array_merge($variantData, ['size' => '', 'color' => '', 'is_active' => true]));
+            }
+        }
 
         if ($request->ajax()) {
             return response()->json(['success' => true]);
