@@ -445,7 +445,7 @@ function renderProducts(products) {
         <div class="product-card bg-white rounded-xl shadow cursor-pointer overflow-hidden"
              onclick="selectProduct(${JSON.stringify(p).replace(/"/g,'&quot;')})">
             <div class="aspect-square bg-gray-100 overflow-hidden">
-                <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.src='/images/no-image.png'">
+                <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.src='/images/no-image.svg'">
             </div>
             <div class="p-3">
                 <p class="font-semibold text-gray-800 text-sm truncate">${p.name}</p>

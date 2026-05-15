@@ -73,7 +73,7 @@
                         <div class="flex items-center gap-3">
                             <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
                                 class="w-10 h-10 rounded-lg object-cover bg-gray-100"
-                                onerror="this.src='/images/no-image.png'">
+                                onerror="this.src='/images/no-image.svg'">
                             <span class="font-medium text-gray-800">{{ $product->name }}</span>
                         </div>
                     </td>

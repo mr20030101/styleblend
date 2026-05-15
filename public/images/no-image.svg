@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#f1f5f9"/>
+  <!-- Shirt body -->
+  <path d="M58 72 L38 92 L58 102 L58 162 L142 162 L142 102 L162 92 L142 72 L120 58 C118 68 110 76 100 76 C90 76 82 68 80 58 Z"
+        fill="#e2e8f0" stroke="#cbd5e1" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Collar left -->
+  <path d="M80 58 C82 68 90 76 100 76" stroke="#cbd5e1" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Collar right -->
+  <path d="M120 58 C118 68 110 76 100 76" stroke="#cbd5e1" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>
