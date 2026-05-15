@@ -63,6 +63,7 @@
                     <tr>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Row</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Product</th>
+                        <th class="text-left px-3 py-2 font-semibold text-gray-600">Type</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Category</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">SKU</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Gender</th>
@@ -79,6 +80,13 @@
                     <tr class="{{ !empty($row['errors']) ? 'bg-red-50' : 'hover:bg-gray-50' }}">
                         <td class="px-3 py-2 text-gray-400">{{ $row['row'] }}</td>
                         <td class="px-3 py-2 font-medium text-gray-800">{{ $row['product_name'] }}</td>
+                        <td class="px-3 py-2">
+                            @if(($row['product_type'] ?? 'variable') === 'simple')
+                                <span class="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">Simple</span>
+                            @else
+                                <span class="px-1.5 py-0.5 rounded text-xs bg-purple-100 text-purple-700">Variable</span>
+                            @endif
+                        </td>
                         <td class="px-3 py-2 text-gray-600">
                             @if(!empty($row['is_uncategorized']))
                                 <span class="text-gray-400 italic">Uncategorized</span>

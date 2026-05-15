@@ -125,6 +125,16 @@ class ProductImportController extends Controller
 
             $validGenders = array_keys(\App\Models\Product::GENDERS);
             $rawGender    = strtolower(trim($row[10] ?? ''));
+            $rawType      = strtolower(trim($row[11] ?? ''));
+            $size         = trim($row[5] ?? '');
+            $color        = trim($row[6] ?? '');
+
+            // Auto-detect: explicit value wins; blank → simple if no size+color, else variable
+            if ($rawType === 'simple' || $rawType === 'variable') {
+                $productType = $rawType;
+            } else {
+                $productType = ($size === '' && $color === '') ? 'simple' : 'variable';
+            }
 
             $data = [
                 'product_name'   => trim($row[0] ?? ''),
@@ -132,12 +142,13 @@ class ProductImportController extends Controller
                 'sku'            => trim($row[2] ?? ''),
                 'barcode'        => trim($row[3] ?? '') ?: null,
                 'description'    => trim($row[4] ?? '') ?: null,
-                'size'           => trim($row[5] ?? ''),
-                'color'          => trim($row[6] ?? ''),
+                'size'           => $size,
+                'color'          => $color,
                 'price'          => trim($row[7] ?? ''),
                 'cost_price'     => trim($row[8] ?? '') ?: 0,
                 'stock_quantity' => trim($row[9] ?? ''),
                 'gender'         => in_array($rawGender, $validGenders) ? $rawGender : null,
+                'product_type'   => $productType,
             ];
 
             $rowErrors = [];
@@ -211,38 +222,50 @@ class ProductImportController extends Controller
             }
             $catId = !empty($catKey) ? ($categories[$catKey] ?? $uncategorizedId) : $uncategorizedId;
 
+            $isSimple = ($row['product_type'] ?? 'variable') === 'simple';
+
             // Find or create product by SKU
             $product = Product::firstOrCreate(
                 ['sku' => $row['sku']],
                 [
-                    'category_id' => $catId,
-                    'name'        => $row['product_name'],
-                    'sku'         => $row['sku'],
-                    'barcode'     => $row['barcode'] ?: null,
-                    'description' => $row['description'] ?: null,
-                    'gender'      => $row['gender'] ?? null,
+                    'category_id'  => $catId,
+                    'name'         => $row['product_name'],
+                    'sku'          => $row['sku'],
+                    'barcode'      => $row['barcode'] ?: null,
+                    'description'  => $row['description'] ?: null,
+                    'gender'       => $row['gender'] ?? null,
+                    'product_type' => $isSimple ? 'simple' : 'variable',
                 ]
             );
 
-            // Update category/name/gender if product already existed
+            // Update category/name/gender/type if product already existed
             if (!$product->wasRecentlyCreated) {
                 $updateData = ['category_id' => $catId, 'name' => $row['product_name']];
                 if (!empty($row['gender'])) $updateData['gender'] = $row['gender'];
                 $product->update($updateData);
             }
 
-            // Find or create variant
-            $sizePart   = !empty($row['size'])  ? '-' . $row['size'] : '';
-            $colorPart  = !empty($row['color']) ? '-' . strtoupper(substr($row['color'], 0, 3)) : '';
-            $variantSku = $row['sku'] . $sizePart . $colorPart;
+            // Build variant SKU and size/color based on product type
+            if ($isSimple) {
+                $variantSize  = '';
+                $variantColor = '';
+                $variantSku   = $row['sku'];
+            } else {
+                $variantSize  = $row['size'];
+                $variantColor = $row['color'];
+                $sizePart     = !empty($row['size'])  ? '-' . $row['size']  : '';
+                $colorPart    = !empty($row['color']) ? '-' . strtoupper(substr($row['color'], 0, 3)) : '';
+                $variantSku   = $row['sku'] . $sizePart . $colorPart;
+            }
 
             ProductVariant::updateOrCreate(
-                ['product_id' => $product->id, 'size' => $row['size'], 'color' => $row['color']],
+                ['product_id' => $product->id, 'size' => $variantSize, 'color' => $variantColor],
                 [
                     'price'          => $row['price'],
                     'cost_price'     => $row['cost_price'] ?: 0,
                     'stock_quantity' => $row['stock_quantity'],
                     'sku'            => $variantSku,
+                    'is_active'      => true,
                 ]
             );
 
