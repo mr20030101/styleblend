@@ -81,15 +81,14 @@ class ProductController extends Controller
         $product->load('variants', 'category');
 
         $variantsData = $product->variants->map(function ($v) use ($product) {
-            $sku = trim($v->sku ?? '', '-');
-            $barcode = $sku ?: trim($product->sku . '-' . $v->size, '-');
+            $sku = trim($v->sku ?? '', '-') ?: trim($product->sku ?? '', '-');
             return [
                 'id'      => $v->id,
                 'size'    => $v->size,
                 'color'   => $v->color,
                 'price'   => $v->price,
-                'sku'     => $sku ?: $barcode,
-                'barcode' => $barcode,
+                'sku'     => $sku,
+                'barcode' => $sku,
             ];
         })->values();
 
@@ -109,14 +108,14 @@ class ProductController extends Controller
                     'name'     => $p->name,
                     'category' => $p->category->name,
                     'variants' => $p->variants->map(function ($v) use ($p) {
-                        $sku = trim($v->sku ?? '', '-');
-                        $barcode = $sku ?: trim($p->sku . '-' . $v->size, '-');
+                        $sku = trim($v->sku ?? '', '-') ?: trim($p->sku ?? '', '-');
                         return [
                             'id'      => $v->id,
                             'size'    => $v->size,
                             'color'   => $v->color,
                             'price'   => $v->price,
-                            'barcode' => $barcode,
+                            'sku'     => $sku,
+                            'barcode' => $sku,
                         ];
                     })->values(),
                 ];
