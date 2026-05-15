@@ -37,17 +37,18 @@ class ProductImportController extends Controller
                 'price',          // required
                 'cost_price',     // optional
                 'stock_quantity', // required
+                'gender',         // optional — men, women, kids, unisex
             ]);
             // Example rows — same SKU = same product, different rows = different variants
-            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'S', 'Red', '29.99', '15.00', '10']);
-            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'M', 'Red', '29.99', '15.00', '8']);
-            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'L', 'Blue', '34.99', '15.00', '5']);
-            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'S', 'Black', '14.99', '7.00', '20']);
-            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'M', '', '14.99', '7.00', '25']);
-            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'L', '', '14.99', '7.00', '15']);
-            fputcsv($file, ['Kids Polo', 'Polo', 'PL-001', '', '', '2T', 'Yellow', '12.99', '6.00', '10']);
-            fputcsv($file, ['Slim Pants', 'Pants', 'PT-001', '', '', '28', 'Navy', '49.99', '25.00', '12']);
-            fputcsv($file, ['No Category Product', '', 'NC-001', '', '', 'Free Size', 'White', '9.99', '5.00', '30']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'S', 'Red', '29.99', '15.00', '10', 'women']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'M', 'Red', '29.99', '15.00', '8', 'women']);
+            fputcsv($file, ['Floral Dress', 'Dress', 'DR-001', '', 'Summer dress', 'L', 'Blue', '34.99', '15.00', '5', 'women']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'S', 'Black', '14.99', '7.00', '20', 'men']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'M', '', '14.99', '7.00', '25', 'men']);
+            fputcsv($file, ['Classic T-Shirt', 'T-shirt', 'TS-001', '1234567890', '', 'L', '', '14.99', '7.00', '15', 'men']);
+            fputcsv($file, ['Kids Polo', 'Polo', 'PL-001', '', '', '2T', 'Yellow', '12.99', '6.00', '10', 'kids']);
+            fputcsv($file, ['Slim Pants', 'Pants', 'PT-001', '', '', '28', 'Navy', '49.99', '25.00', '12', 'unisex']);
+            fputcsv($file, ['No Category Product', '', 'NC-001', '', '', 'Free Size', 'White', '9.99', '5.00', '30', '']);
             fclose($file);
         };
 
@@ -80,6 +81,9 @@ class ProductImportController extends Controller
             $rowNum++;
             if (count(array_filter($row)) === 0) continue; // skip empty rows
 
+            $validGenders = array_keys(\App\Models\Product::GENDERS);
+            $rawGender    = strtolower(trim($row[10] ?? ''));
+
             $data = [
                 'product_name'   => trim($row[0] ?? ''),
                 'category'       => trim($row[1] ?? ''),
@@ -91,6 +95,7 @@ class ProductImportController extends Controller
                 'price'          => trim($row[7] ?? ''),
                 'cost_price'     => trim($row[8] ?? '') ?: 0,
                 'stock_quantity' => trim($row[9] ?? ''),
+                'gender'         => in_array($rawGender, $validGenders) ? $rawGender : null,
             ];
 
             $rowErrors = [];
@@ -173,12 +178,15 @@ class ProductImportController extends Controller
                     'sku'         => $row['sku'],
                     'barcode'     => $row['barcode'] ?: null,
                     'description' => $row['description'] ?: null,
+                    'gender'      => $row['gender'] ?? null,
                 ]
             );
 
-            // Update category/name if product already existed
+            // Update category/name/gender if product already existed
             if (!$product->wasRecentlyCreated) {
-                $product->update(['category_id' => $catId, 'name' => $row['product_name']]);
+                $updateData = ['category_id' => $catId, 'name' => $row['product_name']];
+                if (!empty($row['gender'])) $updateData['gender'] = $row['gender'];
+                $product->update($updateData);
             }
 
             // Find or create variant

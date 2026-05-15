@@ -65,6 +65,7 @@
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Product</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Category</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">SKU</th>
+                        <th class="text-left px-3 py-2 font-semibold text-gray-600">Gender</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Size</th>
                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Color</th>
                         <th class="text-right px-3 py-2 font-semibold text-gray-600">Price</th>
@@ -94,6 +95,13 @@
                                 <span class="ml-1 bg-gray-100 text-gray-600 px-1 rounded text-xs">new</span>
                             @else
                                 <span class="ml-1 bg-yellow-100 text-yellow-700 px-1 rounded text-xs">update</span>
+                            @endif
+                        </td>
+                        <td class="px-3 py-2 text-gray-500">
+                            @if(!empty($row['gender']))
+                                {{ \App\Models\Product::GENDERS[$row['gender']] ?? $row['gender'] }}
+                            @else
+                                <span class="text-gray-300">—</span>
                             @endif
                         </td>
                         <td class="px-3 py-2">{{ $row['size'] }}</td>
