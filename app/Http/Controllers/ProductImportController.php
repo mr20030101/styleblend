@@ -198,10 +198,9 @@ class ProductImportController extends Controller
 
         $imported   = 0;
         $skipped    = 0;
-        $categories = Category::pluck('id', 'name')->mapWithKeys(fn($id, $name) => [strtolower($name) => $id]);
 
-        // Ensure Uncategorized exists as fallback
-        $uncategorized = Category::firstOrCreate(
+        // Ensure Uncategorized exists as fallback for any rows without a resolved category_id
+        $uncategorized   = Category::firstOrCreate(
             ['slug' => 'uncategorized'],
             ['name' => 'Uncategorized', 'is_active' => true]
         );
@@ -210,9 +209,8 @@ class ProductImportController extends Controller
         foreach ($rows as $row) {
             if (!empty($row['errors'])) { $skipped++; continue; }
 
-            // Resolve category — match existing only, fall back to Uncategorized if blank or not found
-            $catKey = strtolower($row['category']);
-            $catId  = (!empty($catKey) && isset($categories[$catKey])) ? $categories[$catKey] : $uncategorizedId;
+            // Use category_id already resolved during preview; never create new categories
+            $catId = $row['category_id'] ?? $uncategorizedId;
 
             $isSimple = ($row['product_type'] ?? 'variable') === 'simple';
 
