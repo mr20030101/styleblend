@@ -10,6 +10,7 @@ class Transaction extends Model
         'transaction_number', 'user_id', 'customer_id', 'subtotal', 'discount',
         'tax', 'total', 'amount_paid', 'change_amount',
         'payment_method', 'status', 'notes', 'void_reason', 'voided_by', 'voided_at',
+        'wheel_spin_token', 'wheel_spun_at',
     ];
 
     protected $casts = [
@@ -20,6 +21,7 @@ class Transaction extends Model
         'amount_paid'  => 'decimal:2',
         'change_amount' => 'decimal:2',
         'voided_at'    => 'datetime',
+        'wheel_spun_at' => 'datetime',
     ];
 
     public function user()     { return $this->belongsTo(User::class); }

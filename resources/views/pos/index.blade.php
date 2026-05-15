@@ -140,6 +140,14 @@
             <div id="raffle-preview" class="hidden bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-center text-xs text-gray-800 font-medium">
                 🎟 <span id="raffle-entries-count"></span> will be generated
             </div>
+            <!-- Wheel of Fortune button -->
+            <div id="wheel-spin-wrap" class="hidden">
+                <button id="wheel-spin-btn" onclick="openWheelModal()"
+                    class="w-full text-white font-bold py-2.5 rounded-lg text-sm transition"
+                    style="background: linear-gradient(135deg,#6366f1,#8b5cf6);">
+                    🎡 Spin to Win!
+                </button>
+            </div>
             <button onclick="clearCart()" class="w-full border border-gray-300 text-gray-600 hover:bg-gray-50 py-2 rounded-lg text-sm transition">
                 <i class="fas fa-trash mr-1"></i> Clear Cart
             </button>
@@ -227,6 +235,7 @@
             </div>
         </div>
         <div id="receipt-raffle"></div>
+        <div id="receipt-wheel"></div>
         <div class="flex gap-3 mt-4">
             <button id="print-receipt-btn" onclick="openReceipt()"
                 class="flex-1 bg-brand hover:bg-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold transition">
@@ -241,6 +250,43 @@
                 New Sale
             </button>
         </div>
+    </div>
+</div>
+
+<!-- Wheel of Fortune Modal -->
+<div id="wheel-pos-modal" class="fixed inset-0 bg-black/70 z-50 hidden">
+    <div class="flex items-center justify-center h-full p-4">
+    <div class="bg-gray-900 rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center" style="border:1px solid rgba(255,255,255,.1)">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-white font-black text-lg">🎡 Spin to Win!</h3>
+            <button id="wheel-pos-close-btn" onclick="closeWheelModal()" class="text-white/40 hover:text-white text-xl">&times;</button>
+        </div>
+        <div class="flex flex-col items-center gap-1 mb-4">
+            <div class="text-white text-2xl leading-none" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.8));margin-bottom:-4px;">▼</div>
+            <canvas id="wheel-pos-canvas" width="280" height="280" class="rounded-full block" style="max-width:100%;height:auto;"></canvas>
+        </div>
+        <button id="wheel-pos-spin-btn" onclick="spinWheelPos()"
+            class="w-full text-white font-black text-lg rounded-full py-3 mb-3 transition"
+            style="background:linear-gradient(135deg,#1DB87A,#0F8A58);letter-spacing:2px;">
+            SPIN
+        </button>
+        <p id="wheel-pos-status" class="text-white/40 text-xs min-h-4"></p>
+
+        <!-- Win result (shown after spin) -->
+        <div id="wheel-pos-result" class="hidden mt-3 rounded-xl p-4" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)">
+            <p class="text-white/50 text-xs uppercase tracking-widest mb-1">You Won!</p>
+            <p class="text-3xl font-black mb-1" id="wheel-pos-win-name"></p>
+            <p class="text-white/40 text-xs mb-3" id="wheel-pos-win-desc"></p>
+            <div id="wheel-pos-discount-info" class="hidden bg-green-900/50 border border-green-500/30 rounded-lg px-3 py-2 mb-3">
+                <p class="text-green-300 text-sm font-semibold" id="wheel-pos-discount-text"></p>
+            </div>
+            <button onclick="applyWheelDiscount()" id="wheel-pos-apply-btn"
+                class="w-full text-white font-bold py-2.5 rounded-xl transition"
+                style="background:linear-gradient(135deg,#1DB87A,#0F8A58);">
+                Apply Discount to Cart
+            </button>
+        </div>
+    </div>
     </div>
 </div>
 
@@ -298,14 +344,19 @@
 
 @push('scripts')
 <script>
-const TAX_ENABLED      = {{ $taxEnabled ? 'true' : 'false' }};
-const TAX_RATE         = {{ $taxRate }};
-const TAX_INCLUSIVE    = {{ $taxInclusive ? 'true' : 'false' }};
-const DISCOUNT_ENABLED = {{ $discountEnabled ? 'true' : 'false' }};
-const MAX_DISCOUNT     = {{ $maxDiscount }};
-const RAFFLE_ENABLED   = {{ \App\Models\Setting::get('raffle_enabled','1') == '1' ? 'true' : 'false' }} && {{ $activeRaffle ? 'true' : 'false' }};
-const RAFFLE_PER_ENTRY = {{ (float)\App\Models\Setting::get('raffle_per_entry', 300) }};
-const CURRENCY         = '{{ $currencySymbol }}';
+const TAX_ENABLED        = {{ $taxEnabled ? 'true' : 'false' }};
+const TAX_RATE           = {{ $taxRate }};
+const TAX_INCLUSIVE      = {{ $taxInclusive ? 'true' : 'false' }};
+const DISCOUNT_ENABLED   = {{ $discountEnabled ? 'true' : 'false' }};
+const MAX_DISCOUNT       = {{ $maxDiscount }};
+const RAFFLE_ENABLED     = {{ \App\Models\Setting::get('raffle_enabled','1') == '1' ? 'true' : 'false' }} && {{ $activeRaffle ? 'true' : 'false' }};
+const RAFFLE_PER_ENTRY   = {{ (float)\App\Models\Setting::get('raffle_per_entry', 300) }};
+const CURRENCY           = '{{ $currencySymbol }}';
+const WHEEL_ENABLED      = {{ $wheelEnabled ? 'true' : 'false' }};
+const WHEEL_MIN_PURCHASE = {{ $wheelMinPurchase }};
+const WHEEL_SPIN_MODE    = '{{ $wheelSpinMode }}';
+
+let wheelSpun = false;
 
 let cart = [];
 let searchTimeout, customerSearchTimeout;
@@ -604,7 +655,14 @@ function updateQty(idx, delta) {
 }
 
 function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
-function clearCart() { cart = []; renderCart(); }
+function clearCart() {
+    cart = [];
+    wheelSpun = false;
+    wheelPosWinner = null;
+    $('#wheel-pos-spin-btn').removeClass('hidden').prop('disabled', false);
+    localStorage.removeItem(CART_STORAGE_KEY);
+    renderCart();
+}
 
 function updateTotals() {
     const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
@@ -619,6 +677,7 @@ function updateTotals() {
     $('#subtotal').text(CURRENCY +subtotal.toFixed(2));
     $('#total').text(CURRENCY +total.toFixed(2));
     updateRafflePreview();
+    updateWheelButton();
 }
 
 $('#discount').on('input', function() {
@@ -714,6 +773,20 @@ function processCheckout() {
                 $('#receipt-raffle').html('');
             }
 
+            if (res.wheel_spin_token && WHEEL_SPIN_MODE === 'next_purchase') {
+                const playUrl = '/wheel/play?token=' + res.wheel_spin_token;
+                $('#receipt-wheel').html(`
+                    <div class="mt-2 bg-indigo-950 rounded-xl p-4 text-center">
+                        <p class="text-xs font-medium text-indigo-300 mb-2">🎡 You earned a spin!</p>
+                        <a href="${playUrl}" target="_blank"
+                            class="inline-block bg-brand hover:bg-brand-dark text-white font-bold px-6 py-2 rounded-full text-sm transition">
+                            Spin the Wheel
+                        </a>
+                    </div>`);
+            } else {
+                $('#receipt-wheel').html('');
+            }
+
             $('#receipt-modal').removeClass('hidden');
         },
         error: function(xhr) {
@@ -751,11 +824,15 @@ function openReceipt() {
 function newTransaction() {
     cart = [];
     selectedCustomer = null;
+    wheelSpun = false;
+    wheelPosWinner = null;
     $('#discount').val(0); $('#tax').val(0);
     $('#selected-customer-id').val('');
     $('#customer-selected').addClass('hidden');
     $('#customer-search').val('');
     $('#raffle-preview').addClass('hidden');
+    $('#wheel-spin-wrap').addClass('hidden');
+    $('#wheel-pos-spin-btn').removeClass('hidden').prop('disabled', false);
     renderCart();
     localStorage.removeItem(CART_STORAGE_KEY);
     $('#receipt-modal').addClass('hidden');
@@ -801,6 +878,188 @@ document.addEventListener('fullscreenchange', function() {
         sidebar.classList.remove('hidden');
     }
 });
+
+// ── Wheel of Fortune (inline cart spin) ────────────────────
+let wheelPosCurrentRotation = 0;
+let wheelPosSpinning = false;
+let wheelPosPrizes = [];
+let wheelPosWinner = null;
+const WHEEL_TAU = 2 * Math.PI;
+
+function updateWheelButton() {
+    if (!WHEEL_ENABLED || WHEEL_SPIN_MODE !== 'immediate') { $('#wheel-spin-wrap').addClass('hidden'); return; }
+    if (wheelSpun) { $('#wheel-spin-wrap').addClass('hidden'); return; }
+    const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+    const discount = parseFloat($('#discount').val()) || 0;
+    const tax      = parseFloat($('#tax').val()) || 0;
+    const total    = subtotal - discount + tax;
+    const threshold = WHEEL_MIN_PURCHASE > 0 ? WHEEL_MIN_PURCHASE : 0.01;
+    if (total >= threshold) {
+        $('#wheel-spin-wrap').removeClass('hidden');
+    } else {
+        $('#wheel-spin-wrap').addClass('hidden');
+    }
+}
+
+function drawWheelPos(prizes, rot) {
+    const canvas = document.getElementById('wheel-pos-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 6;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!prizes.length) {
+        ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, WHEEL_TAU); ctx.fill();
+        return;
+    }
+    const slice = WHEEL_TAU / prizes.length;
+    let angle = rot;
+    prizes.forEach(p => {
+        const end = angle + slice;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, angle, end); ctx.closePath();
+        ctx.fillStyle = p.color; ctx.fill();
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2; ctx.stroke();
+        const mid = angle + slice / 2;
+        const lr = r * 0.65;
+        ctx.save();
+        ctx.translate(cx + lr * Math.cos(mid), cy + lr * Math.sin(mid));
+        ctx.rotate(mid + Math.PI / 2);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(p.name.length > 10 ? p.name.slice(0, 9) + '…' : p.name, 0, 0);
+        ctx.restore();
+        angle = end;
+    });
+    ctx.beginPath(); ctx.arc(cx, cy, 14, 0, WHEEL_TAU);
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function openWheelModal() {
+    if (wheelSpun) return;
+    $('#wheel-pos-result').addClass('hidden');
+    $('#wheel-pos-status').text('');
+    $('#wheel-pos-spin-btn').prop('disabled', false).text('SPIN');
+    $('#wheel-pos-modal').removeClass('hidden');
+
+    $.get('/wheel/prizes/active', function(prizes) {
+        wheelPosPrizes = prizes;
+        wheelPosCurrentRotation = 0;
+        drawWheelPos(prizes, 0);
+    }).fail(function() {
+        // fallback: redraw with empty
+        drawWheelPos([], 0);
+        $('#wheel-pos-status').text('Failed to load prizes.');
+    });
+}
+
+function closeWheelModal() {
+    if (wheelPosSpinning) return;
+    $('#wheel-pos-modal').addClass('hidden');
+}
+
+function spinWheelPos() {
+    if (wheelPosSpinning || !wheelPosPrizes.length) return;
+    wheelPosSpinning = true;
+    $('#wheel-pos-spin-btn').prop('disabled', true);
+    $('#wheel-pos-status').text('');
+
+    const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+    const discount = parseFloat($('#discount').val()) || 0;
+    const tax      = parseFloat($('#tax').val()) || 0;
+    const cartTotal = subtotal - discount + tax;
+
+    $.ajax({
+        url: '{{ route("wheel.spin.pos") }}',
+        method: 'POST',
+        data: { cart_total: cartTotal },
+        success(res) {
+            wheelPosWinner = res.prize;
+            const prizes = wheelPosPrizes;
+            const slice  = WHEEL_TAU / prizes.length;
+            const idx    = prizes.findIndex(p => p.id === res.prize.id);
+            const segMid = (idx + 0.5) * slice;
+            const targetAngle = ((3 * Math.PI / 2 - segMid - wheelPosCurrentRotation) % WHEEL_TAU + WHEEL_TAU) % WHEEL_TAU;
+            const extraSpins  = (5 + Math.floor(Math.random() * 4)) * WHEEL_TAU;
+            const delta = extraSpins + targetAngle;
+            animateWheelPos(wheelPosCurrentRotation, wheelPosCurrentRotation + delta, 5000, res.prize);
+        },
+        error(xhr) {
+            $('#wheel-pos-status').text(xhr.responseJSON?.error || 'Error. Try again.');
+            wheelPosSpinning = false;
+            $('#wheel-pos-spin-btn').prop('disabled', false);
+        }
+    });
+}
+
+function animateWheelPos(from, to, duration, prize) {
+    const t0 = performance.now();
+    (function frame(now) {
+        const progress = Math.min((now - t0) / duration, 1);
+        const eased    = 1 - Math.pow(1 - progress, 4);
+        wheelPosCurrentRotation = from + (to - from) * eased;
+        drawWheelPos(wheelPosPrizes, wheelPosCurrentRotation);
+        if (progress < 1) {
+            requestAnimationFrame(frame);
+        } else {
+            wheelPosCurrentRotation = to;
+            drawWheelPos(wheelPosPrizes, to);
+            wheelPosSpinning = false;
+            showWheelPosResult(prize);
+        }
+    })(t0);
+}
+
+function showWheelPosResult(prize) {
+    $('#wheel-pos-win-name').text(prize.name).css('color', prize.color);
+    $('#wheel-pos-win-desc').text(prize.description || '');
+    $('#wheel-pos-close-btn').prop('disabled', false);
+
+    if (prize.discount_type && prize.discount_type !== 'none' && prize.discount_value > 0) {
+        const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+        let discountText = '';
+        if (prize.discount_type === 'fixed') {
+            discountText = `₱${parseFloat(prize.discount_value).toFixed(2)} will be deducted from your cart!`;
+        } else {
+            const amount = (subtotal * prize.discount_value / 100).toFixed(2);
+            discountText = `${prize.discount_value}% off — ₱${amount} discount applied!`;
+        }
+        $('#wheel-pos-discount-text').text(discountText);
+        $('#wheel-pos-discount-info').removeClass('hidden');
+        $('#wheel-pos-apply-btn').removeClass('hidden');
+    } else {
+        $('#wheel-pos-discount-info').addClass('hidden');
+        $('#wheel-pos-apply-btn').addClass('hidden');
+    }
+    $('#wheel-pos-result').removeClass('hidden');
+    $('#wheel-pos-spin-btn').addClass('hidden');
+}
+
+function applyWheelDiscount() {
+    if (!wheelPosWinner) return;
+    const prize    = wheelPosWinner;
+    const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
+    let amount = 0;
+
+    if (prize.discount_type === 'fixed') {
+        amount = parseFloat(prize.discount_value);
+    } else if (prize.discount_type === 'percentage') {
+        amount = subtotal * (parseFloat(prize.discount_value) / 100);
+    }
+
+    if (amount > 0) {
+        const existing = parseFloat($('#discount').val()) || 0;
+        const newDiscount = (existing + amount).toFixed(2);
+        $('#discount').val(newDiscount);
+        updateTotals();
+        saveCart();
+    }
+
+    wheelSpun = true;
+    $('#wheel-spin-wrap').addClass('hidden');
+    $('#wheel-pos-apply-btn').prop('disabled', true).text('✓ Applied!');
+    setTimeout(() => closeWheelModal(), 1200);
+    showToast('🎡 Discount applied to cart!');
+}
 
 loadCart();
 searchProducts();

@@ -187,6 +187,11 @@
                 <i class="fas fa-ticket-alt w-5 shrink-0 text-center"></i>
                 <span class="nav-label">Raffle</span>
             </a>
+            <a href="{{ route('wheel.index') }}" title="Wheel of Fortune"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition {{ request()->routeIs('wheel.*') ? 'bg-white/10' : '' }}">
+                <i class="fas fa-dharmachakra w-5 shrink-0 text-center"></i>
+                <span class="nav-label">Wheel</span>
+            </a>
             <a href="{{ route('settings.index') }}" title="Settings"
                 class="sidebar-link flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition {{ request()->routeIs('settings.*') ? 'bg-white/10' : '' }}">
                 <i class="fas fa-cog w-5 shrink-0 text-center"></i>

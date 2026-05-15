@@ -37,6 +37,7 @@ class SettingController extends Controller
             'max_discount'        => 'required|numeric|min:0',
             'raffle_enabled'      => 'boolean',
             'raffle_per_entry'    => 'required|numeric|min:1',
+            'wheel_enabled'       => 'boolean',
         ]);
 
         // Handle logo upload
@@ -61,6 +62,7 @@ class SettingController extends Controller
         $data['receipt_auto_print'] = $request->boolean('receipt_auto_print') ? '1' : '0';
         $data['discount_enabled']   = $request->boolean('discount_enabled') ? '1' : '0';
         $data['raffle_enabled']     = $request->boolean('raffle_enabled') ? '1' : '0';
+        $data['wheel_enabled']      = $request->boolean('wheel_enabled') ? '1' : '0';
 
         Setting::setMany($data);
 

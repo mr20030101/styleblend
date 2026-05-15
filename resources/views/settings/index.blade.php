@@ -155,6 +155,24 @@
             </div>
         </div>
 
+        {{-- Wheel of Fortune Settings --}}
+        <div class="bg-white rounded-xl shadow p-6 space-y-4">
+            <h3 class="font-semibold text-gray-700 border-b pb-2 flex items-center gap-2">
+                <i class="fas fa-dharmachakra text-gray-600"></i> Wheel of Fortune
+            </h3>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-700 text-sm">Enable Spin to Win</p>
+                    <p class="text-xs text-gray-400">Show the Spin to Win button in the POS cart. Configure prizes and spin mode in <a href="{{ route('wheel.index') }}" class="text-brand hover:underline">Wheel of Fortune</a>.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="wheel_enabled" value="1" class="sr-only peer"
+                        {{ ($settings['wheel_enabled'] ?? '1') == '1' ? 'checked' : '' }}>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                </label>
+            </div>
+        </div>
+
         {{-- Discount Settings --}}
         <div class="bg-white rounded-xl shadow p-6 space-y-4">
             <h3 class="font-semibold text-gray-700 border-b pb-2 flex items-center gap-2">

@@ -129,5 +129,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/raffle/period/{period}/end', [\App\Http\Controllers\RaffleController::class, 'endPeriod'])->name('raffle.period.end');
         Route::post('/raffle/draw', [\App\Http\Controllers\RaffleController::class, 'draw'])->name('raffle.draw');
         Route::post('/raffle/{entry}/winner', [\App\Http\Controllers\RaffleController::class, 'markWinner'])->name('raffle.winner');
+
+        // Wheel of Fortune
+        Route::get('/wheel', [\App\Http\Controllers\WheelController::class, 'index'])->name('wheel.index');
+        Route::get('/wheel/prizes/active', [\App\Http\Controllers\WheelController::class, 'activePrizes'])->name('wheel.prizes.active');
+        Route::get('/wheel/play', [\App\Http\Controllers\WheelController::class, 'play'])->name('wheel.play');
+        Route::post('/wheel/spin', [\App\Http\Controllers\WheelController::class, 'spin'])->name('wheel.spin');
+        Route::post('/wheel/spin/pos', [\App\Http\Controllers\WheelController::class, 'spinFromPos'])->name('wheel.spin.pos');
+        Route::post('/wheel/prizes', [\App\Http\Controllers\WheelController::class, 'store'])->name('wheel.prizes.store');
+        Route::put('/wheel/prizes/{prize}', [\App\Http\Controllers\WheelController::class, 'update'])->name('wheel.prizes.update');
+        Route::delete('/wheel/prizes/{prize}', [\App\Http\Controllers\WheelController::class, 'destroy'])->name('wheel.prizes.destroy');
+        Route::post('/wheel/settings', [\App\Http\Controllers\WheelController::class, 'saveSettings'])->name('wheel.settings');
     });
 });

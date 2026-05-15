@@ -27,10 +27,15 @@ class PosController extends Controller
         $discountEnabled = \App\Models\Setting::get('discount_enabled', '1') == '1';
         $maxDiscount = (float) \App\Models\Setting::get('max_discount', '0');
         $currencySymbol = \App\Models\Setting::get('currency_symbol', '₱');
-        $activeRaffle = \App\Models\RafflePeriod::getActive() !== null;
+        $activeRaffle       = \App\Models\RafflePeriod::getActive() !== null;
+        $wheelMinPurchase   = (float) \App\Models\Setting::get('wheel_min_purchase', 0);
+        $wheelEnabled       = \App\Models\Setting::get('wheel_enabled', '1') == '1'
+                              && \App\Models\WheelPrize::where('is_active', true)->exists();
+        $wheelSpinMode      = \App\Models\Setting::get('wheel_spin_mode', 'immediate');
         return view('pos.index', compact(
             'categories', 'taxEnabled', 'taxRate', 'taxLabel',
-            'taxInclusive', 'discountEnabled', 'maxDiscount', 'currencySymbol', 'activeRaffle'
+            'taxInclusive', 'discountEnabled', 'maxDiscount', 'currencySymbol', 'activeRaffle',
+            'wheelMinPurchase', 'wheelEnabled', 'wheelSpinMode'
         ));
     }
 
@@ -53,8 +58,8 @@ class PosController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        // Only show products that have at least one active variant (any stock level)
-        $query->whereHas('activeVariants');
+        // Only show products that have at least one active variant with stock > 0
+        $query->whereHas('activeVariants', fn($q) => $q->where('stock_quantity', '>', 0));
 
         $products = $query->orderBy('name')->take(50)->get();
 
@@ -65,7 +70,7 @@ class PosController extends Controller
                 'sku' => $p->sku,
                 'image_url' => $p->image_url,
                 'category' => $p->category->name,
-                'variants' => $p->activeVariants->map(fn($v) => [
+                'variants' => $p->activeVariants->where('stock_quantity', '>', 0)->values()->map(fn($v) => [
                     'id' => $v->id,
                     'size' => $v->size,
                     'color' => $v->color,
@@ -97,7 +102,7 @@ class PosController extends Controller
                     'name'      => $variant->product->name,
                     'image_url' => $variant->product->image_url,
                     'category'  => $variant->product->category->name,
-                    'variants'  => $variant->product->activeVariants->map(fn($v) => [
+                    'variants'  => $variant->product->activeVariants->where('stock_quantity', '>', 0)->values()->map(fn($v) => [
                         'id'             => $v->id,
                         'size'           => $v->size,
                         'color'          => $v->color,
@@ -124,7 +129,7 @@ class PosController extends Controller
             ->first();
 
         if ($product) {
-            $variants = $product->activeVariants;
+            $variants = $product->activeVariants->where('stock_quantity', '>', 0)->values();
             $data = [
                 'found'   => true,
                 'type'    => $variants->count() === 1 ? 'variant' : 'product',
@@ -292,6 +297,18 @@ class PosController extends Controller
                 }
             }
 
+            // Wheel of Fortune spin token (only for next_purchase mode)
+            $wheelSpinToken   = null;
+            $wheelMinPurchase = (float) \App\Models\Setting::get('wheel_min_purchase', 0);
+            $wheelEnabled     = \App\Models\Setting::get('wheel_enabled', '1') == '1'
+                                && \App\Models\WheelPrize::where('is_active', true)->exists();
+            $wheelSpinMode    = \App\Models\Setting::get('wheel_spin_mode', 'immediate');
+
+            if ($wheelEnabled && $wheelSpinMode === 'next_purchase' && $wheelMinPurchase > 0 && $total >= $wheelMinPurchase) {
+                $wheelSpinToken = bin2hex(random_bytes(24));
+                $transaction->update(['wheel_spin_token' => $wheelSpinToken]);
+            }
+
             return response()->json([
                 'success'            => true,
                 'transaction_id'     => $transaction->id,
@@ -299,6 +316,8 @@ class PosController extends Controller
                 'change'             => $transaction->change_amount,
                 'raffle_entries'     => $raffleEntries,
                 'raffle_tickets'     => $raffleEntries > 0 ? RaffleEntry::where('transaction_id', $transaction->id)->first()?->ticket_numbers : null,
+                'wheel_spin_token'   => $wheelSpinToken,
+                'wheel_min_purchase' => $wheelMinPurchase,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
