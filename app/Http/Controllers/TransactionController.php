@@ -44,9 +44,11 @@ class TransactionController extends Controller
         $data = $request->validate(['reason' => 'required|string|max:255']);
 
         DB::transaction(function () use ($transaction, $data) {
-            // Restock all items
+            // Restock all items (skip custom items — no variant, no stock)
             foreach ($transaction->items as $item) {
                 $variant = $item->productVariant;
+                if (!$variant) continue;
+
                 $stockBefore = $variant->stock_quantity;
                 $stockAfter  = $stockBefore + $item->quantity;
 
@@ -54,12 +56,12 @@ class TransactionController extends Controller
 
                 Inventory::create([
                     'product_variant_id' => $variant->id,
-                    'type'        => 'return',
-                    'quantity'    => $item->quantity,
+                    'type'         => 'return',
+                    'quantity'     => $item->quantity,
                     'stock_before' => $stockBefore,
                     'stock_after'  => $stockAfter,
-                    'notes'       => 'Void: ' . $transaction->transaction_number . ' — ' . $data['reason'],
-                    'user_id'     => Auth::id(),
+                    'notes'        => 'Void: ' . $transaction->transaction_number . ' — ' . $data['reason'],
+                    'user_id'      => Auth::id(),
                 ]);
             }
 
