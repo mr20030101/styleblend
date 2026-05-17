@@ -198,7 +198,32 @@
             <div id="co-raffle-row" class="hidden bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-800 font-medium text-center">
                 <span id="co-raffle"></span>
             </div>
+
+            <!-- Payment Method -->
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                <div class="grid grid-cols-3 gap-2" id="payment-method-grid">
+                    @foreach([
+                        ['cash',         'fa-money-bill-wave', 'Cash'],
+                        ['card',         'fa-credit-card',     'Card'],
+                        ['gcash',        'fa-mobile-alt',      'GCash'],
+                        ['maya',         'fa-mobile-alt',      'Maya'],
+                        ['bank_transfer','fa-university',      'Bank'],
+                        ['other',        'fa-ellipsis-h',      'Other'],
+                    ] as [$val, $icon, $label])
+                    <button type="button" data-method="{{ $val }}"
+                        onclick="selectPaymentMethod('{{ $val }}')"
+                        class="payment-method-btn flex flex-col items-center gap-1 border-2 rounded-lg py-2.5 text-xs font-medium transition
+                               {{ $val === 'cash' ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 text-gray-600 hover:border-gray-400' }}">
+                        <i class="fas {{ $icon }} text-base"></i>
+                        {{ $label }}
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Cash: amount paid + quick amounts + change -->
+            <div id="cash-fields">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid ({{ $currencySymbol }})</label>
                 <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand"
@@ -208,11 +233,24 @@
                     <button onclick="setAmount({{ $amt }})" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-1.5 rounded transition">{{ $amt }}</button>
                     @endforeach
                 </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex justify-between items-center mt-3">
+                    <span class="font-medium text-gray-700">Change</span>
+                    <span id="change-display" class="text-2xl font-bold text-gray-700">{{ $currencySymbol }}0.00</span>
+                </div>
             </div>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex justify-between items-center">
-                <span class="font-medium text-gray-700">Change</span>
-                <span id="change-display" class="text-2xl font-bold text-gray-700">{{ $currencySymbol }}0.00</span>
+
+            <!-- Non-cash: reference number + exact payment notice -->
+            <div id="non-cash-fields" class="hidden space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reference / Tracking Number <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="text" id="reference-number" placeholder="e.g. GCash ref, approval code..."
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center text-sm text-gray-500">
+                    <i class="fas fa-check-circle text-gray-400 mr-1"></i> Exact amount — no change
+                </div>
             </div>
+
             <button id="process-btn" onclick="processCheckout()"
                 class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 rounded-lg transition">
                 <i class="fas fa-check mr-2"></i> Process Payment
@@ -410,6 +448,7 @@ let wheelSpun = false;
 let cart = [];
 let searchTimeout, customerSearchTimeout;
 let selectedCustomer = null;
+let selectedPaymentMethod = 'cash';
 
 const CART_STORAGE_KEY = 'styleblend_pos_cart';
 
@@ -782,16 +821,36 @@ $('#discount').on('input', function() {
 });
 
 // ── Checkout ────────────────────────────────────────────────
+function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    $('.payment-method-btn').each(function() {
+        const active = $(this).data('method') === method;
+        $(this)
+            .toggleClass('border-gray-900 bg-gray-900 text-white', active)
+            .toggleClass('border-gray-200 text-gray-600 hover:border-gray-400', !active);
+    });
+    const isCash = method === 'cash';
+    $('#cash-fields').toggleClass('hidden', !isCash);
+    $('#non-cash-fields').toggleClass('hidden', isCash);
+    if (isCash) {
+        $('#amount-paid').val('');
+        $('#change-display').text(CURRENCY + '0.00');
+        setTimeout(() => $('#amount-paid').focus(), 50);
+    } else {
+        setTimeout(() => $('#reference-number').focus(), 50);
+    }
+}
+
 function openCheckout() {
     if (!cart.length) return;
     const subtotal = cart.reduce((s, i) => s + i.subtotal, 0);
     const discount = parseFloat($('#discount').val()) || 0;
     const tax      = parseFloat($('#tax').val()) || 0;
     const total    = subtotal - discount + tax;
-    $('#co-subtotal').text(CURRENCY +subtotal.toFixed(2));
-    $('#co-discount').text(CURRENCY +discount.toFixed(2));
-    $('#co-tax').text(CURRENCY +tax.toFixed(2));
-    $('#co-total').text(CURRENCY +total.toFixed(2));
+    $('#co-subtotal').text(CURRENCY + subtotal.toFixed(2));
+    $('#co-discount').text(CURRENCY + discount.toFixed(2));
+    $('#co-tax').text(CURRENCY + tax.toFixed(2));
+    $('#co-total').text(CURRENCY + total.toFixed(2));
 
     if (selectedCustomer) {
         $('#co-customer').text(selectedCustomer.name + (selectedCustomer.phone ? ' · ' + selectedCustomer.phone : ''));
@@ -808,27 +867,28 @@ function openCheckout() {
         $('#co-raffle-row').addClass('hidden');
     }
 
-    $('#amount-paid').val('');
-    $('#change-display').text(CURRENCY + '0.00');
+    // Reset to cash + clear reference on each open
+    $('#reference-number').val('');
+    selectPaymentMethod('cash');
     $('#checkout-modal').removeClass('hidden');
-    setTimeout(() => $('#amount-paid').focus(), 100);
 }
 
 function closeCheckout() { $('#checkout-modal').addClass('hidden'); }
 function setAmount(val) { $('#amount-paid').val(val); calcChange(); }
 
 function calcChange() {
-    const total  = parseFloat($('#co-total').text().replace(CURRENCY,'')) || 0;
+    const total  = parseFloat($('#co-total').text().replace(CURRENCY, '')) || 0;
     const paid   = parseFloat($('#amount-paid').val()) || 0;
     const change = paid - total;
-    $('#change-display').text(CURRENCY +Math.max(0, change).toFixed(2));
-    $('#change-display').toggleClass('text-gray-700', change < 0).toggleClass('text-gray-700', change >= 0);
+    $('#change-display').text(CURRENCY + Math.max(0, change).toFixed(2));
 }
 
 function processCheckout() {
-    const total = parseFloat($('#co-total').text().replace(CURRENCY,'')) || 0;
-    const paid  = parseFloat($('#amount-paid').val()) || 0;
-    if (paid < total) { showToast('Amount paid is less than total!','error'); return; }
+    const total  = parseFloat($('#co-total').text().replace(CURRENCY, '')) || 0;
+    const isCash = selectedPaymentMethod === 'cash';
+    const paid   = isCash ? (parseFloat($('#amount-paid').val()) || 0) : total;
+
+    if (isCash && paid < total) { showToast('Amount paid is less than total!', 'error'); return; }
 
     $('#process-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Processing...');
 
@@ -842,20 +902,23 @@ function processCheckout() {
                 ? { variant_id: null, quantity: i.quantity, custom_name: i.product_name, custom_price: i.unit_price }
                 : { variant_id: i.variant_id, quantity: i.quantity }
             ),
-            discount:       parseFloat($('#discount').val()) || 0,
-            tax:            parseFloat($('#tax').val()) || 0,
-            amount_paid:    paid,
-            customer_id:    selectedCustomer?.id || null,
-            customer_name:  selectedCustomer?.name || null,
-            customer_phone: selectedCustomer?.phone || null,
+            discount:        parseFloat($('#discount').val()) || 0,
+            tax:             parseFloat($('#tax').val()) || 0,
+            amount_paid:     paid,
+            payment_method:   selectedPaymentMethod,
+            reference_number: selectedPaymentMethod !== 'cash' ? ($('#reference-number').val().trim() || null) : null,
+            customer_id:      selectedCustomer?.id || null,
+            customer_name:   selectedCustomer?.name || null,
+            customer_phone:  selectedCustomer?.phone || null,
         }),
         success: function(res) {
             localStorage.removeItem(CART_STORAGE_KEY);
             closeCheckout();
-            $('#receipt-txn').text('Transaction: ' + res.transaction_number);
-            $('#receipt-total').text(CURRENCY +total.toFixed(2));
-            $('#receipt-paid').text(CURRENCY +paid.toFixed(2));
-            $('#receipt-change').text(CURRENCY +parseFloat(res.change).toFixed(2));
+            const methodLabels = { cash: 'Cash', card: 'Card', gcash: 'GCash', maya: 'Maya', bank_transfer: 'Bank Transfer', other: 'Other' };
+            $('#receipt-txn').text('Transaction: ' + res.transaction_number + ' · ' + (methodLabels[selectedPaymentMethod] || selectedPaymentMethod));
+            $('#receipt-total').text(CURRENCY + total.toFixed(2));
+            $('#receipt-paid').text(CURRENCY + paid.toFixed(2));
+            $('#receipt-change').text(CURRENCY + parseFloat(res.change).toFixed(2));
             $('#print-receipt-btn').data('receipt-url', '/pos/receipt/' + res.transaction_id);
             $('#view-txn-btn').attr('href', '/transactions/' + res.transaction_id);
 
@@ -920,6 +983,7 @@ function openReceipt() {
 function newTransaction() {
     cart = [];
     selectedCustomer = null;
+    selectedPaymentMethod = 'cash';
     wheelSpun = false;
     wheelPosWinner = null;
     $('#discount').val(0); $('#tax').val(0);

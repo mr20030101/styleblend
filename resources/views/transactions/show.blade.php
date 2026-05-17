@@ -19,7 +19,10 @@
             <div class="flex justify-between"><span class="text-gray-500">Date</span><span>{{ $transaction->created_at->format('M d, Y H:i') }}</span></div>
             <div class="flex justify-between"><span class="text-gray-500">Cashier</span><span>{{ $transaction->user->name }}</span></div>
             <div class="flex justify-between"><span class="text-gray-500">Customer</span><span>{{ $transaction->customer?->name ?? 'Walk-in' }}</span></div>
-            <div class="flex justify-between"><span class="text-gray-500">Payment</span><span class="capitalize">{{ $transaction->payment_method }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Payment</span><span class="capitalize">{{ str_replace('_', ' ', $transaction->payment_method) }}</span></div>
+            @if($transaction->reference_number)
+            <div class="flex justify-between"><span class="text-gray-500">Reference #</span><span class="font-mono text-xs">{{ $transaction->reference_number }}</span></div>
+            @endif
         </div>
         <div class="bg-white rounded-xl shadow p-5 space-y-2 text-sm">
             <h3 class="font-semibold text-gray-700 border-b pb-2">Summary</h3>

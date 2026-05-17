@@ -173,10 +173,12 @@ class PosController extends Controller
             'items.*.quantity'       => 'required|integer|min:1',
             'items.*.custom_name'    => 'nullable|string|max:200',
             'items.*.custom_price'   => 'nullable|numeric|min:0',
-            'discount'    => 'nullable|numeric|min:0',
-            'tax'         => 'nullable|numeric|min:0',
-            'amount_paid' => 'required|numeric|min:0',
-            'customer_id' => 'nullable|exists:customers,id',
+            'discount'       => 'nullable|numeric|min:0',
+            'tax'            => 'nullable|numeric|min:0',
+            'amount_paid'    => 'required|numeric|min:0',
+            'payment_method'   => 'required|in:cash,card,gcash,maya,bank_transfer,other',
+            'reference_number' => 'nullable|string|max:100',
+            'customer_id'    => 'nullable|exists:customers,id',
             'customer_name'  => 'nullable|string|max:100',
             'customer_phone' => 'nullable|string|max:20',
         ]);
@@ -237,18 +239,22 @@ class PosController extends Controller
                 return response()->json(['success' => false, 'message' => 'Insufficient payment amount.'], 422);
             }
 
+            $paymentMethod = $data['payment_method'];
+            $changeAmount  = $paymentMethod === 'cash' ? max(0, $amountPaid - $total) : 0;
+
             $transaction = Transaction::create([
                 'transaction_number' => Transaction::generateNumber(),
-                'user_id'       => Auth::id(),
-                'customer_id'   => $data['customer_id'] ?? null,
-                'subtotal'      => $subtotal,
-                'discount'      => $discount,
-                'tax'           => $tax,
-                'total'         => $total,
-                'amount_paid'   => $amountPaid,
-                'change_amount' => $amountPaid - $total,
-                'payment_method' => 'cash',
-                'status'        => 'completed',
+                'user_id'          => Auth::id(),
+                'customer_id'      => $data['customer_id'] ?? null,
+                'subtotal'         => $subtotal,
+                'discount'         => $discount,
+                'tax'              => $tax,
+                'total'            => $total,
+                'amount_paid'      => $amountPaid,
+                'change_amount'    => $changeAmount,
+                'payment_method'   => $paymentMethod,
+                'reference_number' => $paymentMethod !== 'cash' ? ($data['reference_number'] ?? null) : null,
+                'status'           => 'completed',
             ]);
 
             foreach ($itemsData as $item) {

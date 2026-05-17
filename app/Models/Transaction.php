@@ -9,7 +9,7 @@ class Transaction extends Model
     protected $fillable = [
         'transaction_number', 'user_id', 'customer_id', 'subtotal', 'discount',
         'tax', 'total', 'amount_paid', 'change_amount',
-        'payment_method', 'status', 'notes', 'void_reason', 'voided_by', 'voided_at',
+        'payment_method', 'reference_number', 'status', 'notes', 'void_reason', 'voided_by', 'voided_at',
         'wheel_spin_token', 'wheel_spun_at',
     ];
 

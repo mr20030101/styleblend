@@ -91,8 +91,15 @@
     @endif
     <div class="divider"></div>
     <div class="row total-row"><span>TOTAL:</span><span>{{ $currencySymbol }}{{ number_format($transaction->total, 2) }}</span></div>
-    <div class="row"><span>Cash Paid:</span><span>{{ $currencySymbol }}{{ number_format($transaction->amount_paid, 2) }}</span></div>
+    @php $methodLabel = ['cash'=>'Cash','card'=>'Card','gcash'=>'GCash','maya'=>'Maya','bank_transfer'=>'Bank Transfer','other'=>'Other'][$transaction->payment_method] ?? ucfirst($transaction->payment_method); @endphp
+    <div class="row"><span>Payment:</span><span>{{ $methodLabel }}</span></div>
+    @if($transaction->reference_number)
+    <div class="row"><span>Ref #:</span><span>{{ $transaction->reference_number }}</span></div>
+    @endif
+    <div class="row"><span>{{ $transaction->payment_method === 'cash' ? 'Cash Paid' : 'Amount' }}:</span><span>{{ $currencySymbol }}{{ number_format($transaction->amount_paid, 2) }}</span></div>
+    @if($transaction->payment_method === 'cash')
     <div class="row bold"><span>Change:</span><span>{{ $currencySymbol }}{{ number_format($transaction->change_amount, 2) }}</span></div>
+    @endif
 
     <div class="divider"></div>
     <div class="center" style="margin-top:8px;">{{ $storeFooter }}</div>
