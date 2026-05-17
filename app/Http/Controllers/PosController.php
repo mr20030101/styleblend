@@ -168,9 +168,11 @@ class PosController extends Controller
     public function checkout(Request $request)
     {
         $data = $request->validate([
-            'items'       => 'required|array|min:1',
-            'items.*.variant_id' => 'required|exists:product_variants,id',
-            'items.*.quantity'   => 'required|integer|min:1',
+            'items'                  => 'required|array|min:1',
+            'items.*.variant_id'     => 'nullable|exists:product_variants,id',
+            'items.*.quantity'       => 'required|integer|min:1',
+            'items.*.custom_name'    => 'nullable|string|max:200',
+            'items.*.custom_price'   => 'nullable|numeric|min:0',
             'discount'    => 'nullable|numeric|min:0',
             'tax'         => 'nullable|numeric|min:0',
             'amount_paid' => 'required|numeric|min:0',
@@ -185,25 +187,44 @@ class PosController extends Controller
             $itemsData = [];
 
             foreach ($data['items'] as $item) {
-                $variant = ProductVariant::with('product')->lockForUpdate()->find($item['variant_id']);
+                if (!empty($item['variant_id'])) {
+                    $variant = ProductVariant::with('product')->lockForUpdate()->find($item['variant_id']);
 
-                if ($variant->stock_quantity < $item['quantity']) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Insufficient stock for {$variant->product->name} ({$variant->variant_info}). Available: {$variant->stock_quantity}"
-                    ], 422);
+                    if ($variant->stock_quantity < $item['quantity']) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => "Insufficient stock for {$variant->product->name} ({$variant->variant_info}). Available: {$variant->stock_quantity}"
+                        ], 422);
+                    }
+
+                    $lineTotal = $variant->price * $item['quantity'];
+                    $subtotal += $lineTotal;
+
+                    $itemsData[] = [
+                        'variant'      => $variant,
+                        'is_custom'    => false,
+                        'custom_name'  => null,
+                        'quantity'     => $item['quantity'],
+                        'unit_price'   => $variant->price,
+                        'subtotal'     => $lineTotal,
+                    ];
+                } else {
+                    // Custom item — no stock tracking
+                    $customName  = $item['custom_name'] ?? 'Custom Item';
+                    $customPrice = (float) ($item['custom_price'] ?? 0);
+                    $lineTotal   = $customPrice * $item['quantity'];
+                    $subtotal   += $lineTotal;
+
+                    $itemsData[] = [
+                        'variant'      => null,
+                        'is_custom'    => true,
+                        'custom_name'  => $customName,
+                        'quantity'     => $item['quantity'],
+                        'unit_price'   => $customPrice,
+                        'subtotal'     => $lineTotal,
+                    ];
                 }
-
-                $lineTotal = $variant->price * $item['quantity'];
-                $subtotal += $lineTotal;
-
-                $itemsData[] = [
-                    'variant' => $variant,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $variant->price,
-                    'subtotal' => $lineTotal,
-                ];
             }
 
             $discount = $data['discount'] ?? 0;
@@ -231,31 +252,43 @@ class PosController extends Controller
             ]);
 
             foreach ($itemsData as $item) {
-                $variant = $item['variant'];
-                $stockBefore = $variant->stock_quantity;
-                $stockAfter = $stockBefore - $item['quantity'];
+                if (!$item['is_custom']) {
+                    $variant = $item['variant'];
+                    $stockBefore = $variant->stock_quantity;
+                    $stockAfter  = $stockBefore - $item['quantity'];
 
-                $variant->update(['stock_quantity' => $stockAfter]);
+                    $variant->update(['stock_quantity' => $stockAfter]);
 
-                Inventory::create([
-                    'product_variant_id' => $variant->id,
-                    'type' => 'sale',
-                    'quantity' => -$item['quantity'],
-                    'stock_before' => $stockBefore,
-                    'stock_after' => $stockAfter,
-                    'notes' => 'Sale: ' . $transaction->transaction_number,
-                    'user_id' => Auth::id(),
-                ]);
+                    Inventory::create([
+                        'product_variant_id' => $variant->id,
+                        'type'         => 'sale',
+                        'quantity'     => -$item['quantity'],
+                        'stock_before' => $stockBefore,
+                        'stock_after'  => $stockAfter,
+                        'notes'        => 'Sale: ' . $transaction->transaction_number,
+                        'user_id'      => Auth::id(),
+                    ]);
 
-                TransactionItem::create([
-                    'transaction_id' => $transaction->id,
-                    'product_variant_id' => $variant->id,
-                    'product_name' => $variant->product->name,
-                    'variant_info' => $variant->variant_info,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'subtotal' => $item['subtotal'],
-                ]);
+                    TransactionItem::create([
+                        'transaction_id'     => $transaction->id,
+                        'product_variant_id' => $variant->id,
+                        'product_name'       => $variant->product->name,
+                        'variant_info'       => $variant->variant_info,
+                        'quantity'           => $item['quantity'],
+                        'unit_price'         => $item['unit_price'],
+                        'subtotal'           => $item['subtotal'],
+                    ]);
+                } else {
+                    TransactionItem::create([
+                        'transaction_id'     => $transaction->id,
+                        'product_variant_id' => null,
+                        'product_name'       => $item['custom_name'],
+                        'variant_info'       => 'Custom',
+                        'quantity'           => $item['quantity'],
+                        'unit_price'         => $item['unit_price'],
+                        'subtotal'           => $item['subtotal'],
+                    ]);
+                }
             }
 
             DB::commit();

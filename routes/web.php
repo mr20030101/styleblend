@@ -66,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+        Route::delete('/products', [ProductController::class, 'bulkDestroy'])->name('products.bulk-destroy');
         Route::post('/products/{product}/variants', [ProductController::class, 'storeVariant'])->name('products.variants.store');
         Route::put('/variants/{variant}', [ProductController::class, 'updateVariant'])->name('variants.update');
         Route::delete('/variants/{variant}', [ProductController::class, 'destroyVariant'])->name('variants.destroy');

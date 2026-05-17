@@ -35,7 +35,16 @@
         </div>
 
         <div class="flex-1 overflow-y-auto pb-24 md:pb-1">
-            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 p-1">
+            <!-- Custom Item card (always visible) -->
+            <div class="px-1 pt-1 pb-0">
+                <button onclick="openCustomItemModal()"
+                    class="w-full flex items-center gap-3 bg-white border-2 border-dashed border-gray-300 hover:border-gray-500 hover:bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-500 hover:text-gray-800 transition">
+                    <i class="fas fa-plus-circle text-base"></i>
+                    <span class="font-medium">Add Custom Item</span>
+                    <span class="ml-auto text-xs text-gray-400">Sell without selecting a product</span>
+                </button>
+            </div>
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3 p-1 pt-2">
                 <div class="col-span-full text-center py-12 text-gray-400">
                     <i class="fas fa-spinner fa-spin text-4xl mb-3"></i>
                     <p>Loading products...</p>
@@ -301,6 +310,46 @@
     <span id="cart-fab-count"
         class="absolute -top-1 -right-1 bg-gray-900 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
 </button>
+
+<!-- Custom Item Modal -->
+<div id="custom-item-modal" class="fixed inset-0 bg-black/50 z-50 hidden pos-modal items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-plus-circle text-gray-600 mr-2"></i>Custom Item</h3>
+            <button onclick="closeCustomItemModal()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Item Name <span class="text-gray-600">*</span></label>
+                <input type="text" id="ci-name" placeholder="e.g. Alteration fee, Gift wrap..."
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Price <span class="text-gray-600">*</span></label>
+                    <input type="number" id="ci-price" min="0" step="0.01" placeholder="0.00"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+                    <input type="number" id="ci-qty" min="1" value="1"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                </div>
+            </div>
+            <div id="ci-error" class="hidden text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"></div>
+            <div class="flex gap-3 pt-1">
+                <button onclick="addCustomItem()"
+                    class="flex-1 bg-brand hover:bg-brand-dark text-white py-2.5 rounded-lg text-sm font-medium transition">
+                    <i class="fas fa-cart-plus mr-1"></i> Add to Cart
+                </button>
+                <button onclick="closeCustomItemModal()"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Quick Add Customer Modal -->
 <div id="quick-add-modal" class="fixed inset-0 bg-black/50 z-50 hidden pos-modal items-center justify-center">
@@ -604,6 +653,50 @@ function addToCart(product, variant) {
     showToast(`${product.name} (${variant.variant_info}) added`);
 }
 
+function openCustomItemModal() {
+    $('#ci-name').val('');
+    $('#ci-price').val('');
+    $('#ci-qty').val(1);
+    $('#ci-error').addClass('hidden').text('');
+    $('#custom-item-modal').removeClass('hidden');
+    setTimeout(() => $('#ci-name').focus(), 100);
+}
+
+function closeCustomItemModal() {
+    $('#custom-item-modal').addClass('hidden');
+}
+
+function addCustomItem() {
+    const name  = $('#ci-name').val().trim();
+    const price = parseFloat($('#ci-price').val());
+    const qty   = parseInt($('#ci-qty').val()) || 1;
+
+    if (!name) { $('#ci-error').text('Item name is required.').removeClass('hidden'); return; }
+    if (isNaN(price) || price < 0) { $('#ci-error').text('Enter a valid price.').removeClass('hidden'); return; }
+
+    const customKey = `custom:${name}:${price}`;
+    const existing  = cart.find(i => i.is_custom && i._key === customKey);
+    if (existing) {
+        existing.quantity += qty;
+        existing.subtotal  = existing.quantity * existing.unit_price;
+    } else {
+        cart.push({
+            variant_id: null,
+            is_custom: true,
+            _key: customKey,
+            product_name: name,
+            variant_info: 'Custom',
+            unit_price: price,
+            quantity: qty,
+            subtotal: price * qty,
+            max_stock: Infinity,
+        });
+    }
+    renderCart();
+    showToast(`"${name}" added to cart`);
+    closeCustomItemModal();
+}
+
 function renderCart() {
     if (!cart.length) {
         $('#cart-items').html('<div class="text-center py-12 text-gray-400"><i class="fas fa-shopping-cart text-4xl mb-3"></i><p class="text-sm">Cart is empty</p></div>');
@@ -648,7 +741,7 @@ function renderCart() {
 function updateQty(idx, delta) {
     cart[idx].quantity += delta;
     if (cart[idx].quantity <= 0) { cart.splice(idx, 1); }
-    else if (cart[idx].quantity > cart[idx].max_stock) {
+    else if (!cart[idx].is_custom && cart[idx].quantity > cart[idx].max_stock) {
         cart[idx].quantity = cart[idx].max_stock; showToast('Max stock reached!','warning');
     } else { cart[idx].subtotal = cart[idx].quantity * cart[idx].unit_price; }
     renderCart();
@@ -745,7 +838,10 @@ function processCheckout() {
         contentType: 'application/json',
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
         data: JSON.stringify({
-            items:          cart.map(i => ({ variant_id: i.variant_id, quantity: i.quantity })),
+            items: cart.map(i => i.is_custom
+                ? { variant_id: null, quantity: i.quantity, custom_name: i.product_name, custom_price: i.unit_price }
+                : { variant_id: i.variant_id, quantity: i.quantity }
+            ),
             discount:       parseFloat($('#discount').val()) || 0,
             tax:            parseFloat($('#tax').val()) || 0,
             amount_paid:    paid,
@@ -844,7 +940,7 @@ $(document).on('keydown', function(e) {
     if (e.key === 'F2')  { e.preventDefault(); $('#search-input').focus(); }
     if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
     if (e.key === 'F12') { e.preventDefault(); if (cart.length) openCheckout(); }
-    if (e.key === 'Escape') { closeVariantModal(); closeCheckout(); $('#customer-dropdown, #quick-add-modal').addClass('hidden'); }
+    if (e.key === 'Escape') { closeVariantModal(); closeCheckout(); closeCustomItemModal(); $('#customer-dropdown, #quick-add-modal').addClass('hidden'); }
 });
 
 // ── Mobile cart drawer ──────────────────────────────────────

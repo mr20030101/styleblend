@@ -246,6 +246,17 @@ class ProductController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->validate(['ids' => 'required|array|min:1', 'ids.*' => 'integer|exists:products,id'])['ids'];
+        $products = Product::whereIn('id', $ids)->get();
+        foreach ($products as $product) {
+            if ($product->image) Storage::disk('public')->delete($product->image);
+            $product->delete();
+        }
+        return response()->json(['success' => true, 'deleted' => count($ids)]);
+    }
+
     public function storeVariant(Request $request, Product $product)
     {
         $data = $request->validate([
