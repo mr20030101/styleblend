@@ -21,6 +21,7 @@ class SettingController extends Controller
     {
         $data = $request->validate([
             'store_name'          => 'required|string|max:100',
+            'timezone'            => 'required|string|timezone',
             'store_address'       => 'nullable|string|max:255',
             'store_phone'         => 'nullable|string|max:50',
             'store_email'         => 'nullable|email|max:100',

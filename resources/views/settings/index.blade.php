@@ -65,6 +65,26 @@
                     <input type="text" name="store_address" value="{{ $settings['store_address'] ?? '' }}"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
                 </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+                    @php
+                        $currentTz = $settings['timezone'] ?? 'Asia/Manila';
+                        $tzGroups  = collect(DateTimeZone::listIdentifiers())
+                            ->groupBy(fn($tz) => str_contains($tz, '/') ? explode('/', $tz)[0] : 'Other');
+                    @endphp
+                    <select name="timezone" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand">
+                        @foreach($tzGroups as $region => $tzList)
+                            <optgroup label="{{ $region }}">
+                                @foreach($tzList as $tz)
+                                    <option value="{{ $tz }}" {{ $currentTz === $tz ? 'selected' : '' }}>
+                                        {{ str_replace(['_', '/'], [' ', ' / '], $tz) }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1">Used for all dates and times across the system</p>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                     <input type="text" name="store_phone" value="{{ $settings['store_phone'] ?? '' }}"
